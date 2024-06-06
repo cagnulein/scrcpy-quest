@@ -52,9 +52,6 @@ public final class Device {
         int w = deviceSize.getWidth() & ~7; // in case it's not a multiple of 8
         int h = deviceSize.getHeight() & ~7;
         if (maxSize > 0) {
-            if (BuildConfig.DEBUG && maxSize % 8 != 0) {
-                throw new AssertionError("Max size must be a multiple of 8");
-            }
             boolean portrait = h > w;
             int major = portrait ? h : w;
             int minor = portrait ? w : h;

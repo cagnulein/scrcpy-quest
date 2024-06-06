@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Random;
 
 
 public class SendCommands {
@@ -35,8 +36,8 @@ public class SendCommands {
         this.context = context;
         status = 1;
         final StringBuilder command = new StringBuilder();
-        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / com.genymobile.scrcpy.Server 2.4 scid=100000 log_level=VERBOSE");
-        //command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
+        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / org.las2mile.scrcpy.Server ");
+        command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
 
         thread = new Thread(new Runnable() {
             @Override
@@ -50,8 +51,8 @@ public class SendCommands {
         });
         thread.start();
         int count = 0;
+        Log.e("ADB", "Connecting...");
         while (status == 1 && count < 100) {
-            Log.e("ADB", "Connecting...");
             try {
                 Thread.sleep(100);
                 count ++;
@@ -164,14 +165,14 @@ public class SendCommands {
                 s = command + '\n';
                 stream.write(s.getBytes(), 0, s.length());
                 Thread.sleep(100);
-                int ll = 999;
+                /*int ll = 999;
                 while(ll > 0) {
                     byte[] responseBytes = new byte[102400];
                     ll = stream.read(responseBytes, 0, 102400);
                     String response = new String(responseBytes, 0, ll, StandardCharsets.US_ASCII);
                     Log.v("ADB", response);
                     Thread.sleep(100);
-                }
+                }*/
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 status =2;

@@ -2,6 +2,8 @@ package org.las2mile.scrcpy;
 
 import android.util.Log;
 
+import com.genymobile.scrcpy.BuildConfig;
+
 /**
  * Log both to Android logger (so that logs are visible in "adb logcat") and standard output/error (so that they are visible in the terminal
  * directly).

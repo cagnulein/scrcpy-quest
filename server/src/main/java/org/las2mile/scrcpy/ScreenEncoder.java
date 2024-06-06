@@ -1,6 +1,7 @@
 package org.las2mile.scrcpy;
 
 import android.graphics.Rect;
+import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -10,7 +11,9 @@ import android.view.Surface;
 
 import org.las2mile.scrcpy.model.MediaPacket;
 import org.las2mile.scrcpy.model.VideoPacket;
+import org.las2mile.scrcpy.wrappers.DisplayManager;
 import org.las2mile.scrcpy.wrappers.SurfaceControl;
+import org.las2mile.scrcpy.wrappers.ServiceManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,6 +34,7 @@ public class ScreenEncoder implements Device.RotationListener {
     private int bitRate;
     private int frameRate;
     private int iFrameInterval;
+    private VirtualDisplay virtualDisplay;
 
     public ScreenEncoder(int bitRate, int frameRate, int iFrameInterval) {
         this.bitRate = bitRate;
@@ -113,13 +117,31 @@ public class ScreenEncoder implements Device.RotationListener {
         try {
             do {
                 MediaCodec codec = createCodec();
-                IBinder display = createDisplay();
+                IBinder display = null;
                 Rect deviceRect = device.getScreenInfo().getDeviceSize().toRect();
                 Rect videoRect = device.getScreenInfo().getVideoSize().toRect();
                 setSize(format, videoRect.width(), videoRect.height());
                 configure(codec, format);
                 Surface surface = codec.createInputSurface();
-                setDisplaySurface(display, surface, deviceRect, videoRect);
+                if (virtualDisplay != null) {
+                    virtualDisplay.release();
+                    virtualDisplay = null;
+                }
+
+                /*try {
+                    display = createDisplay();
+                    setDisplaySurface(display, surface, deviceRect, videoRect);
+                    Ln.d("Display: using SurfaceControl API");
+                } catch (Exception surfaceControlException )*/ {
+                    try {
+                        virtualDisplay = DisplayManager.createVirtualDisplay("scrcpy", videoRect.width(), videoRect.height(), 0, surface);
+                        Ln.d("Display: using DisplayManager API");
+                    } catch (Exception displayManagerException) {
+                        //Ln.e("Could not create display using SurfaceControl", surfaceControlException);
+                        Ln.e("Could not create display using DisplayManager", displayManagerException);
+                        throw new AssertionError("Could not create display");
+                    }
+                }
                 codec.start();
                 try {
                     alive = encode(codec, outputStream);

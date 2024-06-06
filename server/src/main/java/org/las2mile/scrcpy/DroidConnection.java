@@ -1,5 +1,7 @@
 package org.las2mile.scrcpy;
 
+import android.util.Log;
+
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -38,7 +40,8 @@ public final class DroidConnection implements Closeable {
 
         socket = listenAndAccept();
         DroidConnection connection = null;
-        if (socket.getInetAddress().toString().equals(ip)) {
+        Log.e("DroidConnection", socket.getInetAddress().toString());
+        /*if (socket.getInetAddress().toString().equals(ip))*/ {
             connection = new DroidConnection(socket);
         }
         return connection;
