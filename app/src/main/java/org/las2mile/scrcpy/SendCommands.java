@@ -3,11 +3,13 @@ package org.las2mile.scrcpy;
 
 import static android.org.apache.commons.codec.binary.Base64.encodeBase64String;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
-import com.tananaev.adblib.AdbBase64;
-import com.tananaev.adblib.AdbConnection;
-import com.tananaev.adblib.AdbCrypto;
-import com.tananaev.adblib.AdbStream;
+import io.github.muntashirakon.adb.AbsAdbConnectionManager;
+import io.github.muntashirakon.adb.AdbConnection;
+import io.github.muntashirakon.adb.AdbPairingRequiredException;
+import io.github.muntashirakon.adb.AdbStream;
+
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.NoRouteToHostException;
@@ -29,46 +31,11 @@ public class SendCommands {
 
     }
 
-    public static AdbBase64 getBase64Impl() {
-        return new AdbBase64() {
-            @Override
-            public String encodeToString(byte[] arg0) {
-                return encodeBase64String(arg0);
-            }
-        };
-    }
-
-    private AdbCrypto setupCrypto()
-            throws NoSuchAlgorithmException, IOException {
-
-        AdbCrypto c = null;
-        try {
-              c = AdbCrypto.loadAdbKeyPair(getBase64Impl(), context.getFileStreamPath("priv.key"), context.getFileStreamPath("pub.key"));
-        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException | NullPointerException e) {
-            // Failed to read from file
-            c = null;
-        }
-
-
-        if (c == null) {
-            // We couldn't load a key, so let's generate a new one
-            c = AdbCrypto.generateAdbKeyPair(getBase64Impl());
-            // Save it
-            c.saveAdbKeyPair(context.getFileStreamPath("priv.key"), context.getFileStreamPath("pub.key"));
-            //Generated new keypair
-        } else {
-            //Loaded existing keypair
-        }
-
-        return c;
-    }
-
-
     public int SendAdbCommands(Context context, final byte[] fileBase64, final String ip, final int port, String localip, int bitrate, int size) {
         this.context = context;
         status = 1;
         final StringBuilder command = new StringBuilder();
-        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / org.las2mile.scrcpy.Server ");
+        command.append(" ©=/data/local/tmp/scrcpy-server.jar app_process / org.las2mile.scrcpy.Server ");
         command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
 
         thread = new Thread(new Runnable() {
@@ -76,7 +43,7 @@ public class SendCommands {
             public void run() {
                 try {
                     adbWrite(ip, port, fileBase64, command.toString());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -99,67 +66,28 @@ public class SendCommands {
     }
 
 
-    private void adbWrite(String ip, int port, byte[] fileBase64, String command) throws IOException {
+    private void adbWrite(String ip, int port, byte[] fileBase64, String command) throws Exception {
 
-        AdbConnection adb = null;
-        Socket sock = null;
-        AdbCrypto crypto;
-        AdbStream stream = null;
-
-        try {
-            crypto = setupCrypto();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException("Couldn't read/write keys");
-        }
-
-        try {
-            sock = new Socket(ip, port);
-            Log.e("scrcpy"," ADB socket connection successful");
-        } catch (UnknownHostException e) {
-            status = 2;
-            throw new UnknownHostException(ip + " is no valid ip address");
-        } catch (ConnectException e) {
-            status = 2;
-            throw new ConnectException("Device at " + ip + ":" + port + " has no adb enabled or connection is refused");
-        } catch (NoRouteToHostException e) {
-            status = 2;
-            throw new NoRouteToHostException("Couldn't find adb device at " + ip + ":" + port);
-        } catch (IOException e) {
-            e.printStackTrace();
-            status = 2;
-        }
-
-        if (sock != null && status ==1) {
+        AbsAdbConnectionManager manager = AdbConnectionManager.getInstance(context.getApplicationContext());
+        boolean connected = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
-                adb = AdbConnection.create(sock, crypto);
-                adb.connect();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                connected = manager.connect(ip, port);
+            } catch (AdbPairingRequiredException e) {
+
                 return;
+            } catch (Throwable th) {
+                th.printStackTrace();
             }
         }
 
-        if (adb != null && status ==1) {
-
-            try {
-                stream = adb.open("shell:");
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-                status = 2;
-                return;
-            }
-        }
+        AdbStream stream = manager.openStream("shell:");
 
         if (stream != null && status ==1) {
             try {
-                stream.write(" " + '\n');
-            } catch (IOException | InterruptedException e) {
+                String s = " " + '\n';
+                stream.write(s.getBytes(), 0 ,s.length());
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
@@ -170,18 +98,19 @@ public class SendCommands {
         boolean done = false;
         while (!done && stream != null && status ==1) {
             try {
-                byte[] responseBytes = stream.read();
-                String response = new String(responseBytes, StandardCharsets.US_ASCII);
-                if (response.substring(response.length() - 2).equals("$ ") ||
-                        response.substring(response.length() - 2).equals("# ")) {
+                byte[] responseBytes = new byte[1024];
+                int len = stream.read(responseBytes, 0 , 1024);
+                String response = new String(responseBytes, 0, len, StandardCharsets.US_ASCII);
+                if (response.endsWith("$ ") ||
+                        response.endsWith("# ")) {
                     done = true;
-//                    Log.e("ADB_Shell","Prompt ready");
+                    Log.i("ADB_Shell","Prompt ready");
                     responses += response;
                     break;
                 } else {
                     responses += response;
                 }
-            } catch (InterruptedException | IOException e) {
+            } catch (IOException e) {
                 status = 2;
                 e.printStackTrace();
             }
@@ -192,17 +121,20 @@ public class SendCommands {
             byte[] filePart = new byte[4056];
             int sourceOffset = 0;
             try {
-                stream.write(" cd /data/local/tmp " + '\n');
+                String s = " cd /data/local/tmp " + '\n';
+                stream.write(s.getBytes(), 0, s.length());
                 while (sourceOffset < len) {
                     if (len - sourceOffset >= 4056) {
                         System.arraycopy(fileBase64, sourceOffset, filePart, 0, 4056);  //Writing in 4KB pieces. 4096-40  ---> 40 Bytes for actual command text.
                         sourceOffset = sourceOffset + 4056;
                         String ServerBase64part = new String(filePart, StandardCharsets.US_ASCII);
-                        stream.write(" echo " + ServerBase64part + " >> serverBase64" + '\n');
+                        s = " echo " + ServerBase64part + " >> serverBase64" + '\n';
+                        stream.write(s.getBytes(), 0, s.length());
                         done = false;
                         while (!done) {
-                            byte[] responseBytes = stream.read();
-                            String response = new String(responseBytes, StandardCharsets.US_ASCII);
+                            byte[] responseBytes = new byte[1024000];
+                            int l = stream.read(responseBytes, 0 , 1024000);
+                            String response = new String(responseBytes, 0, l, StandardCharsets.US_ASCII);
                             if (response.endsWith("$ ") || response.endsWith("# ")) {
                                 done = true;
                             }
@@ -213,20 +145,24 @@ public class SendCommands {
                         System.arraycopy(fileBase64, sourceOffset, remPart, 0, rem);
                         sourceOffset = sourceOffset + rem;
                         String ServerBase64part = new String(remPart, StandardCharsets.US_ASCII);
-                        stream.write(" echo " + ServerBase64part + " >> serverBase64" + '\n');
+                        s = " echo " + ServerBase64part + " >> serverBase64" + '\n';
+                        stream.write(s.getBytes(), 0, s.length());
                         done = false;
                         while (!done) {
-                            byte[] responseBytes = stream.read();
-                            String response = new String(responseBytes, StandardCharsets.US_ASCII);
+                            byte[] responseBytes = new byte[1024];
+                            int l = stream.read(responseBytes, 0 , 1024);
+                            String response = new String(responseBytes,0, l, StandardCharsets.US_ASCII);
                             if (response.endsWith("$ ") || response.endsWith("# ")) {
                                 done = true;
                             }
                         }
                     }
                 }
-                stream.write(" base64 -d < serverBase64 > scrcpy-server.jar && rm serverBase64" + '\n');
+                s = " base64 -d < serverBase64 > scrcpy-server.jar && rm serverBase64" + '\n';
+                stream.write(s.getBytes(), 0, s.length());
                 Thread.sleep(100);
-                stream.write(command + '\n');
+                s = command + '\n';
+                stream.write(s.getBytes(), 0, s.length());
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 status =2;

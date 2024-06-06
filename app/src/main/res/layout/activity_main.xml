@@ -51,8 +51,34 @@
                 android:minHeight="48dp"
                 android:text="5555"
                 tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
         </LinearLayout>
 
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Pair Code:"
+            android:textAppearance="@android:style/TextAppearance" />
+
+        <EditText
+            android:id="@+id/editText_pair_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="7"
+            android:hint="pair code for wireless debugging over android 11"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLength="15"
+            android:minHeight="48dp"
+            tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+        <Button
+            android:id="@+id/button_pair"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PAIR" />
 
         <TextView
             android:layout_width="match_parent"

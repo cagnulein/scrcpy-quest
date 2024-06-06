@@ -12,6 +12,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -39,7 +40,18 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import io.github.muntashirakon.adb.AbsAdbConnectionManager;
+import io.github.muntashirakon.adb.AdbPairingRequiredException;
+import io.github.muntashirakon.adb.AdbStream;
+import io.github.muntashirakon.adb.LocalServices;
+import io.github.muntashirakon.adb.android.AdbMdns;
+import io.github.muntashirakon.adb.android.AndroidUtils;
 
 public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener {
     private static final String PREFERENCE_KEY = "default";
@@ -59,6 +71,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private Context context;
     private String serverAdr = null;
     private String serverPort = null;
+    private String pairCode = null;
     private SurfaceView surfaceView;
     private Surface surface;
     private Scrcpy scrcpy;
@@ -68,6 +81,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private static float remote_device_height;
     private LinearLayout linearLayout;
     private static boolean no_control = false;
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -137,6 +152,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         final Button startButton = findViewById(R.id.button_start);
+        final Button pairButton = findViewById(R.id.button_pair);
         AssetManager assetManager = getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -147,6 +163,24 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             Log.e("Asset Manager", e.getMessage());
         }
         sendCommands = new SendCommands();
+
+        pairButton.setOnClickListener(v -> {
+            executor.submit(() -> {
+                getAttributes();
+                try {
+                    boolean pairingStatus;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        AbsAdbConnectionManager manager = AdbConnectionManager.getInstance(getApplication());
+                        pairingStatus = manager.pair(serverAdr, Integer.parseInt(serverPort), pairCode);
+                        if(pairingStatus) {
+                            Toast.makeText(context, "Device paired!", Toast.LENGTH_LONG).show();
+                        }
+                    } else pairingStatus = false;
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            });
+        });
 
         startButton.setOnClickListener(v -> {
             local_ip = wifiIpAddress();
@@ -162,6 +196,26 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });
         get_saved_preferences();
+/*
+        executor.submit(() -> {
+            AtomicInteger atomicPort = new AtomicInteger(-1);
+            CountDownLatch resolveHostAndPort = new CountDownLatch(1);
+
+            AdbMdns adbMdns = new AdbMdns(getApplication(), AdbMdns.SERVICE_TYPE_TLS_PAIRING, (hostAddress, port) -> {
+                atomicPort.set(port);
+                resolveHostAndPort.countDown();
+            });
+            adbMdns.start();
+
+            try {
+                if (!resolveHostAndPort.await(1, TimeUnit.MINUTES)) {
+                    return;
+                }
+            } catch (InterruptedException ignore) {
+            } finally {
+                adbMdns.stop();
+            }
+        });*/
     }
 
 
@@ -268,8 +322,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
+        final EditText editTextPairCode = findViewById(R.id.editText_pair_code);
         serverAdr = editTextServerHost.getText().toString();
         serverPort = editTextServerPort.getText().toString();
+        pairCode = editTextPairCode.getText().toString();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Address", serverAdr).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", serverPort).apply();
         final Spinner videoResolutionSpinner = findViewById(R.id.spinner_video_resolution);

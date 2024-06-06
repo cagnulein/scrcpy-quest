@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
     defaultConfig {
         applicationId "org.las2mile.scrcpy"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 3
         versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -44,6 +44,7 @@ android {
     afterEvaluate {
         packageDebug.finalizedBy(copyDebug)
     }
+    namespace 'org.las2mile.scrcpy'
 }
 
 
