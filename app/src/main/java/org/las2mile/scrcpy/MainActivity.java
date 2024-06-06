@@ -58,6 +58,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private String local_ip;
     private Context context;
     private String serverAdr = null;
+    private String serverPort = null;
     private SurfaceView surfaceView;
     private Surface surface;
     private Scrcpy scrcpy;
@@ -150,8 +151,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         startButton.setOnClickListener(v -> {
             local_ip = wifiIpAddress();
             getAttributes();
-            if (!serverAdr.isEmpty()) {
-                if (sendCommands.SendAdbCommands(context, fileBase64, serverAdr, local_ip, videoBitrate, Math.max(screenHeight, screenWidth)) == 0) {
+            if (!serverAdr.isEmpty() && !serverPort.isEmpty()) {
+                if (sendCommands.SendAdbCommands(context, fileBase64, serverAdr, Integer.parseInt(serverPort), local_ip, videoBitrate, Math.max(screenHeight, screenWidth)) == 0) {
                     start_screen_copy_magic();
                 } else {
                     Toast.makeText(context, "Network OR ADB connection failed", Toast.LENGTH_SHORT).show();
@@ -167,9 +168,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public void get_saved_preferences(){
         this.context = this;
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
+        final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
+        editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         aSwitch0.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("No Control", false));
         aSwitch1.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Nav Switch", false));
         setSpinner(R.array.options_resolution_keys, R.id.spinner_video_resolution, PREFERENCE_SPINNER_RESOLUTION);
@@ -264,8 +267,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private void getAttributes() {
 
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
+        final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         serverAdr = editTextServerHost.getText().toString();
+        serverPort = editTextServerPort.getText().toString();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Address", serverAdr).apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", serverPort).apply();
         final Spinner videoResolutionSpinner = findViewById(R.id.spinner_video_resolution);
         final Spinner videoBitrateSpinner = findViewById(R.id.spinner_video_bitrate);
         final Switch a_Switch0 = findViewById(R.id.switch0);

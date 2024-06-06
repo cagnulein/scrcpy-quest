@@ -64,7 +64,7 @@ public class SendCommands {
     }
 
 
-    public int SendAdbCommands(Context context, final byte[] fileBase64, final String ip, String localip, int bitrate, int size) {
+    public int SendAdbCommands(Context context, final byte[] fileBase64, final String ip, final int port, String localip, int bitrate, int size) {
         this.context = context;
         status = 1;
         final StringBuilder command = new StringBuilder();
@@ -75,7 +75,7 @@ public class SendCommands {
             @Override
             public void run() {
                 try {
-                    adbWrite(ip, fileBase64, command.toString());
+                    adbWrite(ip, port, fileBase64, command.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -99,7 +99,7 @@ public class SendCommands {
     }
 
 
-    private void adbWrite(String ip, byte[] fileBase64, String command) throws IOException {
+    private void adbWrite(String ip, int port, byte[] fileBase64, String command) throws IOException {
 
         AdbConnection adb = null;
         Socket sock = null;
@@ -117,17 +117,17 @@ public class SendCommands {
         }
 
         try {
-            sock = new Socket(ip, 5555);
+            sock = new Socket(ip, port);
             Log.e("scrcpy"," ADB socket connection successful");
         } catch (UnknownHostException e) {
             status = 2;
             throw new UnknownHostException(ip + " is no valid ip address");
         } catch (ConnectException e) {
             status = 2;
-            throw new ConnectException("Device at " + ip + ":" + 5555 + " has no adb enabled or connection is refused");
+            throw new ConnectException("Device at " + ip + ":" + port + " has no adb enabled or connection is refused");
         } catch (NoRouteToHostException e) {
             status = 2;
-            throw new NoRouteToHostException("Couldn't find adb device at " + ip + ":" + 5555);
+            throw new NoRouteToHostException("Couldn't find adb device at " + ip + ":" + port);
         } catch (IOException e) {
             e.printStackTrace();
             status = 2;
