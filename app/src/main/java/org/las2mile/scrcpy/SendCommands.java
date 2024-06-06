@@ -35,8 +35,8 @@ public class SendCommands {
         this.context = context;
         status = 1;
         final StringBuilder command = new StringBuilder();
-        command.append(" ©=/data/local/tmp/scrcpy-server.jar app_process / org.las2mile.scrcpy.Server ");
-        command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
+        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / com.genymobile.scrcpy.Server 2.4 scid=100000 log_level=VERBOSE");
+        //command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
 
         thread = new Thread(new Runnable() {
             @Override
@@ -163,6 +163,15 @@ public class SendCommands {
                 Thread.sleep(100);
                 s = command + '\n';
                 stream.write(s.getBytes(), 0, s.length());
+                Thread.sleep(100);
+                int ll = 999;
+                while(ll > 0) {
+                    byte[] responseBytes = new byte[102400];
+                    ll = stream.read(responseBytes, 0, 102400);
+                    String response = new String(responseBytes, 0, ll, StandardCharsets.US_ASCII);
+                    Log.v("ADB", response);
+                    Thread.sleep(100);
+                }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 status =2;
