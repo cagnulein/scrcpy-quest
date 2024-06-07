@@ -129,10 +129,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     public MainActivity() {
     }
+
+    static {
+        System.loadLibrary("ovrplatformloader");
+        System.loadLibrary("android_remote");
+    }
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (first_time) {
             scrcpy_main();
         } else {

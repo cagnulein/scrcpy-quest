@@ -12,3 +12,5 @@
 .idea/misc.xml
 /.idea
 /app/release
+/app/.cxx/Debug
+/app/.cxx
