@@ -36,7 +36,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 add_library(libovrplatformloader SHARED IMPORTED)
 set_target_properties(libovrplatformloader PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a/libovrplatformloader.so)
 add_library(libovrplatformloader_arm64 SHARED IMPORTED)
-set_target_properties(mylib_arm64 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libovrplatformloader.so)
+set_target_properties(libovrplatformloader_arm64 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libovrplatformloader.so)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     # List libraries link to the target library
