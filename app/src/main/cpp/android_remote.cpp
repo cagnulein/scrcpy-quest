@@ -21,11 +21,10 @@
 #include <stdlib.h>
 #include <jni.h>
 
-extern "C" {
-    void init(jobject activityObject, JNIEnv* env) {
-        jclass clazz = env->GetObjectClass(activityObject);
-        jobject globalObj = env->NewGlobalRef(activityObject);
-        ovr_PlatformInitializeAndroid("7605700462831986", globalObj, env);
-        env->DeleteGlobalRef(globalObj);
-    }
+extern "C"
+JNIEXPORT void JNICALL
+Java_org_cagnulein_android_1remote_ovr_1lib_init(JNIEnv *env, jclass clazz, jobject activityObject) {
+    //jobject globalObj = env->NewGlobalRef(activityObject);
+    ovr_PlatformInitializeAndroid("7605700462831986", activityObject, env);
+
 }

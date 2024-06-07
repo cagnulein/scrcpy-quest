@@ -5,6 +5,6 @@ public class ovr_lib {
         System.loadLibrary("android_remote");
     }
 
-    public static native void init(Object activityObject, Object env);
+    public static native void init(Object activityObject);
 }
  

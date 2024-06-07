@@ -137,7 +137,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ovr_lib.init(this, this.getClass().getClassLoader());
 
         if (first_time) {
             scrcpy_main();
@@ -149,7 +148,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         Sensor proximity;
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
-
+        ovr_lib.init(this);
     }
 
 
