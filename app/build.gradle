@@ -12,7 +12,7 @@ android {
         versionCode 5
         versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-	    setProperty("archivesBaseName", "scrcpy")
+	    setProperty("archivesBaseName", "android_remote")
     }
     buildTypes {
         release {

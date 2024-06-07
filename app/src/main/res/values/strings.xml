@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">scrcpy</string>
+    <string name="app_name">Android Remote</string>
 
     <string name="label_server_ip">Remote Device IP address and port</string>
     <string name="label_video_resolution">Resolution</string>
