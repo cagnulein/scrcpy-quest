@@ -7,7 +7,7 @@ android {
     compileSdkVersion 34
     defaultConfig {
         applicationId "org.cagnulein.android_remote"
-        minSdkVersion 24
+        minSdkVersion 29
         targetSdkVersion 32
         versionCode 5
         versionName "2.1"
