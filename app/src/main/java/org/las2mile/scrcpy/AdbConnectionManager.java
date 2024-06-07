@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 // SPDX-License-Identifier: GPL-3.0-or-later OR Apache-2.0
 

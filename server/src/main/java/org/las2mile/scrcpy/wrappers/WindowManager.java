@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy.wrappers;
+package org.cagnulein.android_remote.wrappers;
 
 import android.os.IInterface;
 import android.view.IRotationWatcher;

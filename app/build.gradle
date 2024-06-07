@@ -6,7 +6,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 34
     defaultConfig {
-        applicationId "org.las2mile.scrcpy"
+        applicationId "org.cagnulein.android_remote"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 5
@@ -20,7 +20,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    namespace 'org.las2mile.scrcpy'
+    namespace 'org.cagnulein.android_remote'
 }
 
 dependencies {

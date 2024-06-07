@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy.model;
+package org.cagnulein.android_remote.model;
 
 /**
  * Created by Alexandr Golovach on 27.06.16.

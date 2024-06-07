@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy.decoder;
+package org.cagnulein.android_remote.decoder;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;

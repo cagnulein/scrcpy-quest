@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 import android.graphics.Rect;
 import android.hardware.display.VirtualDisplay;
@@ -9,11 +9,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.view.Surface;
 
-import org.las2mile.scrcpy.model.MediaPacket;
-import org.las2mile.scrcpy.model.VideoPacket;
-import org.las2mile.scrcpy.wrappers.DisplayManager;
-import org.las2mile.scrcpy.wrappers.SurfaceControl;
-import org.las2mile.scrcpy.wrappers.ServiceManager;
+import org.cagnulein.android_remote.model.MediaPacket;
+import org.cagnulein.android_remote.model.VideoPacket;
+import org.cagnulein.android_remote.wrappers.DisplayManager;
+import org.cagnulein.android_remote.wrappers.SurfaceControl;
+import org.cagnulein.android_remote.wrappers.ServiceManager;
 
 import java.io.IOException;
 import java.io.OutputStream;

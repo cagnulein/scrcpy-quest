@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 import android.graphics.Point;
 import android.os.Build;
@@ -6,7 +6,7 @@ import android.os.RemoteException;
 import android.view.IRotationWatcher;
 import android.view.InputEvent;
 
-import org.las2mile.scrcpy.wrappers.ServiceManager;
+import org.cagnulein.android_remote.wrappers.ServiceManager;
 
 public final class Device {
 

@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 import android.graphics.Rect;
 

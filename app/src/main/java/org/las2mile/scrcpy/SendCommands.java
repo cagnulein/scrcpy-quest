@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 
 import static android.org.apache.commons.codec.binary.Base64.encodeBase64String;
@@ -36,7 +36,7 @@ public class SendCommands {
         this.context = context;
         status = 1;
         final StringBuilder command = new StringBuilder();
-        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / org.las2mile.scrcpy.Server ");
+        command.append(" CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / org.cagnulein.android_remote.Server ");
         command.append(" /" + localip + " " + Long.toString(size) + " " + Long.toString(bitrate) + ";");
 
         thread = new Thread(new Runnable() {

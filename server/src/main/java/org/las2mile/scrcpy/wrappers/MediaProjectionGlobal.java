@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy.wrappers;
+package org.cagnulein.android_remote.wrappers;
 
 import android.hardware.display.VirtualDisplay;
 import android.view.Surface;

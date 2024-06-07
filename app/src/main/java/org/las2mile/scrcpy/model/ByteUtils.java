@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy.model;
+package org.cagnulein.android_remote.model;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

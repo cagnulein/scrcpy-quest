@@ -1,4 +1,4 @@
-package org.las2mile.scrcpy;
+package org.cagnulein.android_remote;
 
 import android.graphics.Point;
 import android.os.SystemClock;
@@ -8,7 +8,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import org.las2mile.scrcpy.wrappers.InputManager;
+import org.cagnulein.android_remote.wrappers.InputManager;
 
 import java.io.IOException;
 

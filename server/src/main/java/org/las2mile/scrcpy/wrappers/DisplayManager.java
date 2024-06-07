@@ -1,11 +1,11 @@
-package org.las2mile.scrcpy.wrappers;
+package org.cagnulein.android_remote.wrappers;
 
 import android.hardware.display.VirtualDisplay;
 import android.os.IInterface;
 import android.view.Surface;
 
-import org.las2mile.scrcpy.DisplayInfo;
-import org.las2mile.scrcpy.Size;
+import org.cagnulein.android_remote.DisplayInfo;
+import org.cagnulein.android_remote.Size;
 
 import java.lang.reflect.InvocationTargetException;
 
