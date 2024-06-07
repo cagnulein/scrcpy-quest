@@ -19,10 +19,13 @@
 #include "include/OVR_Platform.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <jni.h>
 
-
-int init() {
-    if (ovr_PlatformInitializeWindows("7605700462831986") != ovrPlatformInitialize_Success) {
-    return 1;
+extern "C" {
+    void init(jobject activityObject, JNIEnv* env) {
+        jclass clazz = env->GetObjectClass(activityObject);
+        jobject globalObj = env->NewGlobalRef(activityObject);
+        ovr_PlatformInitializeAndroid("7605700462831986", globalObj, env);
+        env->DeleteGlobalRef(globalObj);
     }
 }
