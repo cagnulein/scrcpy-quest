@@ -95,34 +95,6 @@
             android:layout_height="wrap_content"
             android:text="PAIR" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/label_video_resolution"
-            android:textAppearance="@android:style/TextAppearance" />
-
-        <Spinner
-            android:id="@+id/spinner_video_resolution"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/options_resolution_keys"
-            android:minHeight="48dp"
-            tools:ignore="DuplicateSpeakableTextCheck" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/label_video_bitrate"
-            android:textAppearance="@android:style/TextAppearance" />
-
-        <Spinner
-            android:id="@+id/spinner_video_bitrate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/options_bitrate_keys"
-            android:minHeight="48dp" />
     </LinearLayout>
 
 
