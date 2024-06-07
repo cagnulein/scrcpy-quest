@@ -33,14 +33,20 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 # build script, prebuilt third-party libraries, or Android system libraries.
 
 # Aggiungi la libreria .so importata
-add_library(libovrplatformloader SHARED IMPORTED)
-set_target_properties(libovrplatformloader PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a/libovrplatformloader.so)
-add_library(libovrplatformloader_arm64 SHARED IMPORTED)
-set_target_properties(libovrplatformloader_arm64 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libovrplatformloader.so)
+
+if(${ANDROID_ABI} STREQUAL "armeabi-v7a")
+    add_library(libovrplatformloader SHARED IMPORTED)
+    set_target_properties(libovrplatformloader PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a/libovrplatformloader.so)
+    target_link_libraries(${CMAKE_PROJECT_NAME} android log libovrplatformloader)
+elseif(${ANDROID_ABI} STREQUAL "arm64-v8a")
+    add_library(libovrplatformloader_arm64 SHARED IMPORTED)
+    set_target_properties(libovrplatformloader_arm64 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libovrplatformloader.so)
+    target_link_libraries(${CMAKE_PROJECT_NAME} android log libovrplatformloader_arm64)
+else()
+    # Gestisci altre architetture o emetti un messaggio di errore
+endif()
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
     # List libraries link to the target library
     android
-    log
-    libovrplatformloader
-    libovrplatformloader_arm64)
+    log)
