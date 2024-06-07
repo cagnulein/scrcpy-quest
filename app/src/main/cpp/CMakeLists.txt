@@ -1,4 +1,3 @@
-
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html.
 # For more examples on how to use CMake, see https://github.com/android/ndk-samples.
@@ -32,7 +31,16 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
+
+# Aggiungi la libreria .so importata
+add_library(libovrplatformloader SHARED IMPORTED)
+set_target_properties(libovrplatformloader PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/armeabi-v7a/libovrplatformloader.so)
+add_library(libovrplatformloader_arm64 SHARED IMPORTED)
+set_target_properties(mylib_arm64 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libovrplatformloader.so)
+
 target_link_libraries(${CMAKE_PROJECT_NAME}
     # List libraries link to the target library
     android
-    log)
+    log
+    libovrplatformloader
+    libovrplatformloader_arm64)
