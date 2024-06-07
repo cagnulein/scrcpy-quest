@@ -7,7 +7,7 @@ android {
     compileSdkVersion 34
     defaultConfig {
         applicationId "org.cagnulein.android_remote"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 32
         versionCode 5
         versionName "2.1"
@@ -70,6 +70,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
+    implementation 'org.khronos.openxr:openxr_loader_for_android:1.1.37'
 
 }
