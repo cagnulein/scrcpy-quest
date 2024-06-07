@@ -263,7 +263,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         }
         float remote_device_aspect_ratio = remote_device_height/remote_device_width;
-
+/*
         if (!landscape) {                                                            //Portrait
             float this_device_aspect_ratio = this_dev_height/this_dev_width;
             if (remote_device_aspect_ratio > this_device_aspect_ratio) {
@@ -280,7 +280,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 linearLayout.setPadding(((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0,((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0);
             }
 
-        }
+        }*/
         if (!no_control) {
             surfaceView.setOnTouchListener((v, event) -> scrcpy.touchevent(event, surfaceView.getWidth(), surfaceView.getHeight()));
         }
@@ -355,13 +355,13 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 //        Log.e("Scrcpy: ","Starting scrcpy service");
             setContentView(R.layout.surface);
             final View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(
+            /*decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);*/
             surfaceView = findViewById(R.id.decoder_surface);
             surface = surfaceView.getHolder().getSurface();
         final LinearLayout nav_bar = findViewById(R.id.nav_button_bar);
