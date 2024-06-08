@@ -14,7 +14,7 @@
     <meta-data android:name="com.oculus.supportedDevices" android:value="quest|quest2|quest3" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
@@ -23,7 +23,7 @@
         <activity
             android:name=".MainActivity"
                 android:launchMode="singleTask"
-				android:screenOrientation="landscape"            
+				android:screenOrientation="landscape"
             android:exported="true">
 		    <intent-filter>
 				<action android:name="android.intent.action.MAIN" />

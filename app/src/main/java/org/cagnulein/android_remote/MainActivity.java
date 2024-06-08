@@ -148,7 +148,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         Sensor proximity;
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
-        ovr_lib.init(this);
     }
 
 
