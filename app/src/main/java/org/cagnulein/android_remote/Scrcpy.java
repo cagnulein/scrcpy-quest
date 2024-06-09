@@ -95,7 +95,7 @@ public class Scrcpy extends Service {
 
         int[] buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * screenWidth / displayW, (int) touch_event.getY() * screenHeight / displayH};
         final byte[] array = new byte[buf.length * 4]; // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
-        Log.d("touchevent", touch_event.getAction() + " " +  (int) touch_event.getX() * screenWidth / displayW + " " +  (int) touch_event.getY() * screenHeight / displayH);
+        Log.d("touchevent", touch_event.getAction() + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight + " " + touch_event.getX() + " " + touch_event.getY() + " " +  (int) touch_event.getX() * screenWidth / displayW + " " +  (int) touch_event.getY() * screenHeight / displayH);
         for (int j = 0; j < buf.length; j++) {
             final int c = buf[j];
             array[j * 4] = (byte) ((c & 0xFF000000) >> 24);

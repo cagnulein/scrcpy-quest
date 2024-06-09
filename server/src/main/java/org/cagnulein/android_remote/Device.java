@@ -111,7 +111,7 @@ public final class Device {
 //        Point point = position.getPoint();
         int scaledX = point.x * deviceSize.getWidth() / videoSize.getWidth();
         int scaledY = point.y * deviceSize.getHeight() / videoSize.getHeight();
-        return new Point(scaledX, scaledY);
+        return new Point(point.x, scaledY);
     }
 
     public interface RotationListener {
