@@ -439,16 +439,16 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             remote_device_width = rem_res[0];
             first_time = false;
         }
-        unbindService(serviceConnection);
-        serviceBound = false;
+        //unbindService(serviceConnection);
+        //serviceBound = false;
         result_of_Rotation = true;
         landscape = !landscape;
         swapDimensions();
-        if (landscape) {
+        /*if (landscape) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+        }*/
     }
 
     @Override

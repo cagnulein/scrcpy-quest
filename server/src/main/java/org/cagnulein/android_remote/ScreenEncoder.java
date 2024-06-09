@@ -147,7 +147,7 @@ public class ScreenEncoder implements Device.RotationListener {
                     alive = encode(codec, outputStream);
                 } finally {
                     codec.stop();
-                    destroyDisplay(display);
+                    //destroyDisplay(display);
                     codec.release();
                     surface.release();
                 }

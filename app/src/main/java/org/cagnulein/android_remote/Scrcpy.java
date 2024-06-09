@@ -183,14 +183,14 @@ public class Scrcpy extends Service {
                                             if (serviceCallbacks != null) {
                                                 serviceCallbacks.loadNewRotation();
                                             }
-                                            while (!updateAvailable.get()) {
+                                            /*while (!updateAvailable.get()) {
                                                 // Waiting for new surface
                                                 try {
                                                     Thread.sleep(100);
                                                 } catch (InterruptedException e) {
                                                     e.printStackTrace();
                                                 }
-                                            }
+                                            }*/
 
                                         }
                                     }
