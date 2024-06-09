@@ -25,11 +25,6 @@
                 android:launchMode="singleTask"
 				android:screenOrientation="landscape"
             android:exported="true">
-		    <intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="com.oculus.intent.category.VR" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>                        
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

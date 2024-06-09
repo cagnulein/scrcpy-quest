@@ -9,19 +9,10 @@ android {
         applicationId "org.cagnulein.android_remote"
         minSdkVersion 29
         targetSdkVersion 32
-        versionCode 6
+        versionCode 8
         versionName "2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	    setProperty("archivesBaseName", "android_remote")
-        externalNativeBuild {
-            cmake {
-                cppFlags ''
-            }
-        }
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a'
-        }
-
     }
     buildTypes {
         release {
@@ -30,12 +21,6 @@ android {
         }
     }
     namespace 'org.cagnulein.android_remote'
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version '3.22.1'
-        }
-    }
 }
 
 dependencies {
