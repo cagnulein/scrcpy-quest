@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private Context context;
     private String serverAdr = null;
     private String serverPort = null;
+    private String pairPort = null;
     private String pairCode = null;
     private SurfaceView surfaceView;
     private Surface surface;
@@ -172,7 +173,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     boolean pairingStatus;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         AbsAdbConnectionManager manager = AdbConnectionManager.getInstance(getApplication());
-                        pairingStatus = manager.pair(serverAdr, Integer.parseInt(serverPort), pairCode);
+                        pairingStatus = manager.pair(serverAdr, Integer.parseInt(pairPort), pairCode);
                         if(pairingStatus) {
                             Toast.makeText(context, "Device paired!", Toast.LENGTH_LONG).show();
                         }
@@ -244,10 +245,12 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         this.context = this;
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
+        final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
+        editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
         aSwitch0.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("No Control", false));
         aSwitch1.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Nav Switch", false));
         setSpinner(R.array.options_resolution_keys, R.id.spinner_video_resolution, PREFERENCE_SPINNER_RESOLUTION);
@@ -343,9 +346,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
+        final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
         final EditText editTextPairCode = findViewById(R.id.editText_pair_code);
         serverAdr = editTextServerHost.getText().toString();
         serverPort = editTextServerPort.getText().toString();
+        pairPort = editTextPairPort.getText().toString();
         pairCode = editTextPairCode.getText().toString();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Address", serverAdr).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", serverPort).apply();

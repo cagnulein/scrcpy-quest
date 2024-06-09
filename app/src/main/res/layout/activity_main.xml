@@ -74,20 +74,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Pair Code:"
+            android:text="Pair Code and port:"
             android:textAppearance="@android:style/TextAppearance" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
         <EditText
             android:id="@+id/editText_pair_code"
-            android:layout_width="match_parent"
+            android:layout_width="292dp"
             android:layout_height="wrap_content"
             android:ems="7"
-            android:hint="pair code for wireless debugging over android 11"
+            android:hint="pair code for wireless debugging"
             android:importantForAutofill="no"
-            android:inputType="text"
+            android:inputType="number"
             android:maxLength="15"
             android:minHeight="48dp"
             tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+            <EditText
+                android:id="@+id/editText_pair_port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="7"
+                android:hint="port, for example 37132"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:maxLength="15"
+                android:minHeight="48dp"
+                android:text="5555"
+                tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/button_pair"
