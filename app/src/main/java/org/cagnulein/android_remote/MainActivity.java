@@ -306,7 +306,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
         }*/
         if (!no_control) {
-            surfaceView.setOnTouchListener((v, event) -> scrcpy.touchevent(event, surfaceView.getWidth(), surfaceView.getHeight()));
+            surfaceView.setOnTouchListener((v, event) -> scrcpy.touchevent(event, surfaceView.getWidth(), surfaceView.getHeight(), landscape));
         }
 
         if (nav && !no_control) {

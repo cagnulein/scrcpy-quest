@@ -108,10 +108,14 @@ public final class Device {
 //        Size clientVideoSize = position.getScreenSize();
 
         Size deviceSize = screenInfo.getDeviceSize();
+        boolean isPortrait = deviceSize.getHeight() > deviceSize.getWidth();
 //        Point point = position.getPoint();
         int scaledX = point.x * deviceSize.getWidth() / videoSize.getWidth();
         int scaledY = point.y * deviceSize.getHeight() / videoSize.getHeight();
-        return new Point(point.x, scaledY);
+        if(isPortrait)
+            return new Point(point.x, scaledY);
+        else
+            return new Point(scaledX, point.y);
     }
 
     public interface RotationListener {
