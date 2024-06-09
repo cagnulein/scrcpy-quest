@@ -70,7 +70,7 @@ public final class Device {
 
     public Point getPhysicalPoint(Position position) {
         @SuppressWarnings("checkstyle:HiddenField") // it hides the field on purpose, to read it with a lock
-                ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
+        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
         Size videoSize = screenInfo.getVideoSize();
         Size clientVideoSize = position.getScreenSize();
         if (!videoSize.equals(clientVideoSize)) {
@@ -103,7 +103,7 @@ public final class Device {
 
     public Point NewgetPhysicalPoint(Point point) {
         @SuppressWarnings("checkstyle:HiddenField") // it hides the field on purpose, to read it with a lock
-                ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
+        ScreenInfo screenInfo = getScreenInfo(); // read with synchronization
         Size videoSize = screenInfo.getVideoSize();
 //        Size clientVideoSize = position.getScreenSize();
 
@@ -113,7 +113,6 @@ public final class Device {
         int scaledY = point.y * deviceSize.getHeight() / videoSize.getHeight();
         return new Point(scaledX, scaledY);
     }
-
 
     public interface RotationListener {
         void onRotationChanged(int rotation);
