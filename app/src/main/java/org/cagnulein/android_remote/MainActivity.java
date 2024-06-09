@@ -217,6 +217,26 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 adbMdns.stop();
             }
         });*/
+
+        /*
+        executor.submit(() -> {
+            AbsAdbConnectionManager manager = null;
+            try {
+                manager = AdbConnectionManager.getInstance(getApplication());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                manager.autoConnect(context, 500);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (AdbPairingRequiredException e) {
+                throw new RuntimeException(e);
+            }
+        });*/
+        startButton.performClick();
     }
 
 
@@ -355,14 +375,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private void start_screen_copy_magic() {
 //        Log.e("Scrcpy: ","Starting scrcpy service");
             setContentView(R.layout.surface);
-            final View decorView = getWindow().getDecorView();
-            /*decorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);*/
             surfaceView = findViewById(R.id.decoder_surface);
             surface = surfaceView.getHolder().getSurface();
         final LinearLayout nav_bar = findViewById(R.id.nav_button_bar);
@@ -443,13 +455,21 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     protected void onPause() {
         super.onPause();
         if (serviceBound) {
-            scrcpy.pause();
+            scrcpy.StopService();
+            unbindService(serviceConnection);
+            scrcpy = null;
+            serviceBound = false;
         }
+        System.exit(0);
+        /*if (serviceBound) {
+            scrcpy.pause();
+        }*/
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        /*
         if (!first_time && !result_of_Rotation) {
             final View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(
@@ -463,7 +483,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 linearLayout = findViewById(R.id.container1);
                 scrcpy.resume();
             }
-        }
+        }*/
+        first_time = true;
         result_of_Rotation = false;
     }
 
@@ -495,7 +516,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     scrcpy.sendKeyevent(28);
                 }
             } else {
-                if (serviceBound) {
+                if (serviceBound && scrcpy != null) {
                     scrcpy.sendKeyevent(29);
                 }
             }
