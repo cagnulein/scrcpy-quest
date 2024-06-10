@@ -248,11 +248,13 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
+        final Switch adebuglog = findViewById(R.id.debuglog);
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
         aSwitch0.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("No Control", false));
         aSwitch1.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Nav Switch", false));
+        adebuglog.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false));
         setSpinner(R.array.options_resolution_keys, R.id.spinner_video_resolution, PREFERENCE_SPINNER_RESOLUTION);
         setSpinner(R.array.options_bitrate_keys, R.id.spinner_video_bitrate, PREFERENCE_SPINNER_BITRATE);
         if(aSwitch0.isChecked()){
@@ -360,8 +362,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         no_control = a_Switch0.isChecked();
         final Switch a_Switch1 = findViewById(R.id.switch1);
         nav = a_Switch1.isChecked();
+        final Switch a_debuglog = findViewById(R.id.debuglog);
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("No Control", no_control).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Nav Switch", nav).apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Debug Log", a_debuglog.isChecked()).apply();
 
         final String[] videoResolutions = getResources().getStringArray(R.array.options_resolution_values)[videoResolutionSpinner.getSelectedItemPosition()].split(",");
             screenHeight = Integer.parseInt(videoResolutions[0]);
