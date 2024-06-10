@@ -177,6 +177,10 @@ public class Scrcpy extends Service {
                             packetSize = new byte[4];
                             dataInputStream.readFully(packetSize, 0, 4);
                             int size = ByteUtils.bytesToInt(packetSize);
+                            if( size < 0 || size > 10000000 ) {
+                                dataInputStream.skipBytes(dataInputStream.available());
+                                continue;
+                            }
                             byte[] packet = new byte[size];
                             dataInputStream.readFully(packet, 0, size);
                             VideoPacket videoPacket = VideoPacket.fromArray(packet);
