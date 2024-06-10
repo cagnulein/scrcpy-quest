@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -42,7 +43,7 @@ public class Scrcpy extends Service {
     private int[] remote_dev_resolution = new int[2];
     private boolean socket_status = false;
 
-    private FileLogger logger = new FileLogger("scrcpy");
+    private FileLogger logger = new FileLogger("scrcpy", getApplicationContext());
 
     @Override
     public IBinder onBind(Intent intent) {

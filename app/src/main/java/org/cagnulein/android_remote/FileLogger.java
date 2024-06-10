@@ -1,4 +1,9 @@
+package org.cagnulein.android_remote;
+import android.content.Context;
+import android.os.Environment;
+
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -8,9 +13,12 @@ public class FileLogger extends Logger {
     private static final String LOG_FILE = "log.txt";
     private BufferedWriter writer;
     private static boolean debuglog = false;
+    private static final String PREFERENCE_KEY = "default";
+    private Context context;
 
-    public FileLogger(String name) {
+    public FileLogger(String name, Context context) {
         super(name, null);
+        this.context = context;
         debuglog = context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false);
         if(debuglog) {
             try {
@@ -36,7 +44,6 @@ public class FileLogger extends Logger {
         }
     }
 
-    @Override
     public void close() {
         if(debuglog) {
             try {

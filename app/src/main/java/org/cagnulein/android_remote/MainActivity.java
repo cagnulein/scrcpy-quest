@@ -82,6 +82,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private static float remote_device_height;
     private LinearLayout linearLayout;
     private static boolean no_control = false;
+    private FileLogger logger;
 
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
@@ -146,6 +147,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         Sensor proximity;
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         sensorManager.registerListener(this, proximity, SensorManager.SENSOR_DELAY_NORMAL);
+        logger = new FileLogger("mainactivity", getApplicationContext());
+        logger.info("onCreate");
     }
 
 
