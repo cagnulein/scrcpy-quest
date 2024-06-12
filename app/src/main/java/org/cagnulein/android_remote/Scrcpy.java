@@ -43,7 +43,7 @@ public class Scrcpy extends Service {
     private int[] remote_dev_resolution = new int[2];
     private boolean socket_status = false;
 
-    private FileLogger logger = new FileLogger("scrcpy", getApplicationContext());
+    //private FileLogger logger = new FileLogger("scrcpy", getApplicationContext());
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -103,7 +103,7 @@ public class Scrcpy extends Service {
             buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * screenHeight / displayW, (int) touch_event.getY() * screenWidth / displayH};
         }
         String bufStr = Arrays.toString(buf).replaceAll(",", "");
-        logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
+        //logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
 
         final byte[] array = new byte[buf.length * 4]; // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
         for (int j = 0; j < buf.length; j++) {
