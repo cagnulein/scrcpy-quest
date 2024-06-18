@@ -16,6 +16,7 @@ public final class Device {
 
     public Device(Options options) {
         screenInfo = computeScreenInfo(options.getMaxSize());
+        setScreenPowerMode(POWER_MODE_OFF);
         registerRotationWatcher(new IRotationWatcher.Stub() {
             @Override
             public void onRotationChanged(int rotation) throws RemoteException {
@@ -120,6 +121,41 @@ public final class Device {
 
     public interface RotationListener {
         void onRotationChanged(int rotation);
+    }
+
+    // see <https://android.googlesource.com/platform/frameworks/base.git/+/pie-release-2/core/java/android/view/SurfaceControl.java#305>
+    public static final int POWER_MODE_OFF = 0;
+    public static final int POWER_MODE_NORMAL = 2;
+
+    public static boolean setScreenPowerMode(int mode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // On Android 14, these internal methods have been moved to DisplayControl
+            boolean useDisplayControl =
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && !SurfaceControl.hasPhysicalDisplayIdsMethod();
+
+            // Change the power mode for all physical displays
+            long[] physicalDisplayIds = useDisplayControl ? DisplayControl.getPhysicalDisplayIds() : SurfaceControl.getPhysicalDisplayIds();
+            if (physicalDisplayIds == null) {
+                Ln.e("Could not get physical display ids");
+                return false;
+            }
+
+            boolean allOk = true;
+            for (long physicalDisplayId : physicalDisplayIds) {
+                IBinder binder = useDisplayControl ? DisplayControl.getPhysicalDisplayToken(
+                        physicalDisplayId) : SurfaceControl.getPhysicalDisplayToken(physicalDisplayId);
+                allOk &= SurfaceControl.setDisplayPowerMode(binder, mode);
+            }
+            return allOk;
+        }
+
+        // Older Android versions, only 1 display
+        IBinder d = SurfaceControl.getBuiltInDisplay();
+        if (d == null) {
+            Ln.e("Could not get built-in display");
+            return false;
+        }
+        return SurfaceControl.setDisplayPowerMode(d, mode);
     }
 
 }
