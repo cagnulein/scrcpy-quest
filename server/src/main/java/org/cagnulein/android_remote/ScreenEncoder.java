@@ -63,10 +63,6 @@ public class ScreenEncoder implements Device.RotationListener {
         return format;
     }
 
-    private static IBinder createDisplay() {
-        return SurfaceControl.createDisplay("scrcpy", false);
-    }
-
     private static void configure(MediaCodec codec, MediaFormat format) {
         codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
     }

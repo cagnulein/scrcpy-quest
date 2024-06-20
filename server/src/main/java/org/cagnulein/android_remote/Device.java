@@ -2,11 +2,15 @@ package org.cagnulein.android_remote;
 
 import android.graphics.Point;
 import android.os.Build;
+import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.IRotationWatcher;
 import android.view.InputEvent;
 
+import org.cagnulein.android_remote.wrappers.DisplayControl;
 import org.cagnulein.android_remote.wrappers.ServiceManager;
+import org.cagnulein.android_remote.wrappers.SurfaceControl;
 
 public final class Device {
 
@@ -136,7 +140,7 @@ public final class Device {
             // Change the power mode for all physical displays
             long[] physicalDisplayIds = useDisplayControl ? DisplayControl.getPhysicalDisplayIds() : SurfaceControl.getPhysicalDisplayIds();
             if (physicalDisplayIds == null) {
-                Ln.e("Could not get physical display ids");
+                Log.e("scrcpy", "Could not get physical display ids");
                 return false;
             }
 
@@ -152,7 +156,7 @@ public final class Device {
         // Older Android versions, only 1 display
         IBinder d = SurfaceControl.getBuiltInDisplay();
         if (d == null) {
-            Ln.e("Could not get built-in display");
+            Log.e("scrcpy", "Could not get built-in display");
             return false;
         }
         return SurfaceControl.setDisplayPowerMode(d, mode);
