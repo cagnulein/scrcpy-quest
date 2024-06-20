@@ -25,8 +25,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
+            android:resizeableActivity="true"
                 android:launchMode="singleTask"
-				android:screenOrientation="landscape"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
