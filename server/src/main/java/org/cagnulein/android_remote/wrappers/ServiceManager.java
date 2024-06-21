@@ -10,11 +10,12 @@ import java.lang.reflect.Method;
 public final class ServiceManager {
     private final Method getServiceMethod;
 
-    private WindowManager windowManager;
-    private DisplayManager displayManager;
-    private InputManager inputManager;
-    private PowerManager powerManager;
+    private static WindowManager windowManager;
+    private static DisplayManager displayManager;
+    private static InputManager inputManager;
+    private static PowerManager powerManager;
     private static ActivityManager activityManager;
+    private static CameraManager cameraManager;
 
     public ServiceManager() {
         try {
@@ -24,7 +25,7 @@ public final class ServiceManager {
         }
     }
 
-    private IInterface getService(String service, String type) {
+    private static IInterface getService(String service, String type) {
         try {
             IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
@@ -34,28 +35,40 @@ public final class ServiceManager {
         }
     }
 
-    public WindowManager getWindowManager() {
+    public static WindowManager getWindowManager() {
         if (windowManager == null) {
             windowManager = new WindowManager(getService("window", "android.view.IWindowManager"));
         }
         return windowManager;
     }
 
-    public DisplayManager getDisplayManager() {
+    public static DisplayManager getDisplayManager() {
         if (displayManager == null) {
             displayManager = new DisplayManager(getService("display", "android.hardware.display.IDisplayManager"));
         }
         return displayManager;
     }
 
-    public InputManager getInputManager() {
+    public static InputManager getInputManager() {
         if (inputManager == null) {
             inputManager = new InputManager(getService("input", "android.hardware.input.IInputManager"));
         }
         return inputManager;
     }
 
-    public PowerManager getPowerManager() {
+    public static CameraManager getCameraManager() {
+        if (cameraManager == null) {
+            try {
+                Constructor<CameraManager> ctor = CameraManager.class.getDeclaredConstructor(Context.class);
+                cameraManager = ctor.newInstance(FakeContext.get());
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
+        }
+        return cameraManager;
+    }
+
+    public static owerManager getPowerManager() {
         if (powerManager == null) {
             powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
         }

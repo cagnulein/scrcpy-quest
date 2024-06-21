@@ -39,4 +39,12 @@ public final class DisplayManager {
             throw new AssertionError(e);
         }
     }
+
+    public int[] getDisplayIds() {
+        try {
+            return (int[]) manager.getClass().getMethod("getDisplayIds").invoke(manager);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
+    }    
 }
