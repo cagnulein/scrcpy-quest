@@ -5,6 +5,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 
 import java.lang.reflect.Method;
+import android.hardware.camera2.CameraManager;
 
 @SuppressLint("PrivateApi")
 public final class ServiceManager {
@@ -25,7 +26,7 @@ public final class ServiceManager {
         }
     }
 
-    private static IInterface getService(String service, String type) {
+    private IInterface getService(String service, String type) {
         try {
             IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
@@ -68,7 +69,7 @@ public final class ServiceManager {
         return cameraManager;
     }
 
-    public static owerManager getPowerManager() {
+    public static PowerManager getPowerManager() {
         if (powerManager == null) {
             powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
         }
