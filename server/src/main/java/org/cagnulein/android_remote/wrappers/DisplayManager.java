@@ -46,6 +46,16 @@ public final class DisplayManager {
         }
     }
 
+    private static DisplayInfo getDisplayInfoFromDumpsysDisplay(int displayId) {
+        try {
+            String dumpsysDisplayOutput = Command.execReadOutput("dumpsys", "display");
+            return parseDisplayInfo(dumpsysDisplayOutput, displayId);
+        } catch (Exception e) {
+            Ln.e("Could not get display info from \"dumpsys display\" output", e);
+            return null;
+        }
+    }
+
     public int[] getDisplayIds() {
         try {
             return (int[]) manager.getClass().getMethod("getDisplayIds").invoke(manager);

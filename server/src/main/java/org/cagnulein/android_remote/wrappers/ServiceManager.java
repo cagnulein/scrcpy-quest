@@ -1,34 +1,45 @@
 package org.cagnulein.android_remote.wrappers;
 
+import org.cagnulein.android_remote.FakeContext;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.hardware.camera2.CameraManager;
 import android.os.IBinder;
 import android.os.IInterface;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import android.hardware.camera2.CameraManager;
 
-@SuppressLint("PrivateApi")
+@SuppressLint("PrivateApi,DiscouragedPrivateApi")
 public final class ServiceManager {
-    private final Method getServiceMethod;
 
-    private static WindowManager windowManager;
-    private static DisplayManager displayManager;
-    private static InputManager inputManager;
-    private static PowerManager powerManager;
-    private static ActivityManager activityManager;
-    private static CameraManager cameraManager;
+    private static final Method GET_SERVICE_METHOD;
 
-    public ServiceManager() {
+    static {
         try {
-            getServiceMethod = Class.forName("android.os.ServiceManager").getDeclaredMethod("getService", String.class);
+            GET_SERVICE_METHOD = Class.forName("android.os.ServiceManager").getDeclaredMethod("getService", String.class);
         } catch (Exception e) {
             throw new AssertionError(e);
         }
     }
 
-    private IInterface getService(String service, String type) {
+    private static WindowManager windowManager;
+    private static DisplayManager displayManager;
+    private static InputManager inputManager;
+    private static PowerManager powerManager;
+    private static StatusBarManager statusBarManager;
+    private static ClipboardManager clipboardManager;
+    private static ActivityManager activityManager;
+    private static CameraManager cameraManager;
+
+    private ServiceManager() {
+        /* not instantiable */
+    }
+
+    static IInterface getService(String service, String type) {
         try {
-            IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
+            IBinder binder = (IBinder) GET_SERVICE_METHOD.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
             return (IInterface) asInterfaceMethod.invoke(null, binder);
         } catch (Exception e) {
@@ -38,23 +49,52 @@ public final class ServiceManager {
 
     public static WindowManager getWindowManager() {
         if (windowManager == null) {
-            windowManager = new WindowManager(getService("window", "android.view.IWindowManager"));
+            windowManager = WindowManager.create();
         }
         return windowManager;
     }
 
     public static DisplayManager getDisplayManager() {
         if (displayManager == null) {
-            displayManager = new DisplayManager(getService("display", "android.hardware.display.IDisplayManager"));
+            displayManager = DisplayManager.create();
         }
         return displayManager;
     }
 
     public static InputManager getInputManager() {
         if (inputManager == null) {
-            inputManager = new InputManager(getService("input", "android.hardware.input.IInputManager"));
+            inputManager = InputManager.create();
         }
         return inputManager;
+    }
+
+    public static PowerManager getPowerManager() {
+        if (powerManager == null) {
+            powerManager = PowerManager.create();
+        }
+        return powerManager;
+    }
+
+    public static StatusBarManager getStatusBarManager() {
+        if (statusBarManager == null) {
+            statusBarManager = StatusBarManager.create();
+        }
+        return statusBarManager;
+    }
+
+    public static ClipboardManager getClipboardManager() {
+        if (clipboardManager == null) {
+            // May be null, some devices have no clipboard manager
+            clipboardManager = ClipboardManager.create();
+        }
+        return clipboardManager;
+    }
+
+    public static ActivityManager getActivityManager() {
+        if (activityManager == null) {
+            activityManager = ActivityManager.create();
+        }
+        return activityManager;
     }
 
     public static CameraManager getCameraManager() {
@@ -67,19 +107,5 @@ public final class ServiceManager {
             }
         }
         return cameraManager;
-    }
-
-    public static PowerManager getPowerManager() {
-        if (powerManager == null) {
-            powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
-        }
-        return powerManager;
-    }
-
-    public static ActivityManager getActivityManager() {
-        if (activityManager == null) {
-            activityManager = ActivityManager.create();
-        }
-        return activityManager;
     }
 }
