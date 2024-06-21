@@ -1,6 +1,6 @@
 package org.cagnulein.android_remote;
 
-import org.cagnulein.android_remote.ServiceManager;
+import org.cagnulein.android_remote.wrappers.ServiceManager;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
