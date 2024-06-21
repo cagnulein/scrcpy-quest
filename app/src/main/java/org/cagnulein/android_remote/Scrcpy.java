@@ -1,6 +1,7 @@
 package org.cagnulein.android_remote;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
@@ -43,7 +44,7 @@ public class Scrcpy extends Service {
     private int[] remote_dev_resolution = new int[2];
     private boolean socket_status = false;
 
-    //private FileLogger logger = new FileLogger("scrcpy", getApplicationContext());
+    private FileLogger logger = null;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -70,6 +71,7 @@ public class Scrcpy extends Service {
         this.screenHeight = screenHeight;
         this.screenWidth = screenWidth;
         this.surface = surface;
+        logger = new FileLogger("scrcpy", getApplicationContext());
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -103,7 +105,7 @@ public class Scrcpy extends Service {
             buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * screenHeight / displayW, (int) touch_event.getY() * screenWidth / displayH};
         }
         String bufStr = Arrays.toString(buf).replaceAll(",", "");
-        //logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
+        logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
 
         final byte[] array = new byte[buf.length * 4]; // https://stackoverflow.com/questions/2183240/java-integer-to-byte-array
         for (int j = 0; j < buf.length; j++) {
