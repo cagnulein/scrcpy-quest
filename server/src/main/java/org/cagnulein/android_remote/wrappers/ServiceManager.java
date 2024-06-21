@@ -14,6 +14,7 @@ public final class ServiceManager {
     private DisplayManager displayManager;
     private InputManager inputManager;
     private PowerManager powerManager;
+    private static ActivityManager activityManager;
 
     public ServiceManager() {
         try {
@@ -59,5 +60,12 @@ public final class ServiceManager {
             powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
         }
         return powerManager;
+    }
+
+    public static ActivityManager getActivityManager() {
+        if (activityManager == null) {
+            activityManager = ActivityManager.create();
+        }
+        return activityManager;
     }
 }
