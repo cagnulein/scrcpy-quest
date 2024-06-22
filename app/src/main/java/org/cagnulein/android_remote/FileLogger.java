@@ -19,8 +19,8 @@ public class FileLogger extends Logger {
     public FileLogger(String name, Context context) {
         super(name, null);
         this.context = context;
-        debuglog = context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false);
-        if(debuglog) {
+        //debuglog = context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false);
+        if(true/*debuglog*/) {
             try {
                 File docsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
                 File logFile = new File(docsDir, "android_remote.txt");                
@@ -34,7 +34,7 @@ public class FileLogger extends Logger {
     @Override
     public void log(Level level, String msg) {
         super.log(level, msg);
-        if(debuglog) {
+        if(true/*debuglog*/) {
             try {
                 writer.write(String.format("[%s] %s: %s%n", java.time.LocalDateTime.now(), level, msg));
                 writer.flush();
@@ -45,7 +45,7 @@ public class FileLogger extends Logger {
     }
 
     public void close() {
-        if(debuglog) {
+        if(true/*debuglog*/) {
             try {
                 writer.close();
             } catch (IOException e) {
