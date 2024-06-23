@@ -118,9 +118,9 @@ public final class Device {
         int scaledX = point.x * deviceSize.getWidth() / videoSize.getWidth();
         int scaledY = point.y * deviceSize.getHeight() / videoSize.getHeight();
         if(isPortrait)
-            return new Point(point.x, point.y);
+            return new Point(scaledX, scaledY);
         else
-            return new Point(point.x, point.y);
+            return new Point(scaledX, scaledY);
     }
 
     public interface RotationListener {
