@@ -14,7 +14,6 @@ import org.cagnulein.android_remote.wrappers.SurfaceControl;
 
 public final class Device {
 
-    private final ServiceManager serviceManager = new ServiceManager();
     private ScreenInfo screenInfo;
     private RotationListener rotationListener;
 
@@ -94,15 +93,15 @@ public final class Device {
     }
 
     public boolean injectInputEvent(InputEvent inputEvent, int mode) {
-        return serviceManager.getInputManager().injectInputEvent(inputEvent, mode);
+        return ServiceManager.getInputManager().injectInputEvent(inputEvent, mode);
     }
 
     public boolean isScreenOn() {
-        return serviceManager.getPowerManager().isScreenOn();
+        return ServiceManager.getPowerManager().isScreenOn();
     }
 
     public void registerRotationWatcher(IRotationWatcher rotationWatcher) {
-        serviceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
+        ServiceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
     }
 
     public synchronized void setRotationListener(RotationListener rotationListener) {
