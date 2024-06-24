@@ -1,9 +1,9 @@
 package org.cagnulein.android_remote.wrappers;
 
-import com.genymobile.scrcpy.Command;
-import com.genymobile.scrcpy.DisplayInfo;
-import com.genymobile.scrcpy.Ln;
-import com.genymobile.scrcpy.Size;
+import org.cagnulein.android_remote.Command;
+import org.cagnulein.android_remote.DisplayInfo;
+import org.cagnulein.android_remote.Ln;
+import org.cagnulein.android_remote.Size;
 
 import android.annotation.SuppressLint;
 import android.hardware.display.VirtualDisplay;
