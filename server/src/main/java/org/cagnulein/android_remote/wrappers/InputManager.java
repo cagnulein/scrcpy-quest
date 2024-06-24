@@ -15,6 +15,17 @@ public final class InputManager {
     private final IInterface manager;
     private final Method injectInputEventMethod;
 
+    static InputManager create() {
+        try {
+            Class<?> inputManagerClass = getInputManagerClass();
+            Method getInstanceMethod = inputManagerClass.getDeclaredMethod("getInstance");
+            Object im = getInstanceMethod.invoke(null);
+            return new InputManager(im);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     public InputManager(IInterface manager) {
         this.manager = manager;
         try {

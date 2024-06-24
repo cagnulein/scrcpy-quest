@@ -10,6 +10,11 @@ public final class WindowManager {
         this.manager = manager;
     }
 
+    static WindowManager create() {
+        IInterface manager = ServiceManager.getService("window", "android.view.IWindowManager");
+        return new WindowManager(manager);
+    }
+
     public int getRotation() {
         try {
             Class<?> cls = manager.getClass();
