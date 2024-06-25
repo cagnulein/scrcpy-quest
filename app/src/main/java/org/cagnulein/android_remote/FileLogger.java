@@ -36,8 +36,10 @@ public class FileLogger extends Logger {
         super.log(level, msg);
         if(true/*debuglog*/) {
             try {
-                writer.write(String.format("[%s] %s: %s%n", java.time.LocalDateTime.now(), level, msg));
-                writer.flush();
+                if(writer != null) {
+                    writer.write(String.format("[%s] %s: %s%n", java.time.LocalDateTime.now(), level, msg));
+                    writer.flush();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
