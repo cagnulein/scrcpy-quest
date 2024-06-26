@@ -296,7 +296,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         float this_device_aspect_ratio;
         int padding = 0;
         /*if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("original_aspect_ratio", false))*/ {
-            /*if (!landscape)*/ {
+            /*if (!landscape) {*/
                 //Portrait
                 this_device_aspect_ratio = this_dev_height/this_dev_width;
                 if (remote_device_aspect_ratio > this_device_aspect_ratio) {
