@@ -9,8 +9,8 @@ android {
         applicationId "org.cagnulein.android_remote"
         minSdkVersion 29
         targetSdkVersion 32
-        versionCode 14
-        versionName "2.1"
+        versionCode 17
+        versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	    setProperty("archivesBaseName", "android_remote")
     }
