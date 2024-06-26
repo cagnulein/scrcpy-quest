@@ -2,8 +2,10 @@ package org.cagnulein.android_remote;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
@@ -12,10 +14,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -52,6 +59,7 @@ import io.github.muntashirakon.adb.AdbStream;
 import io.github.muntashirakon.adb.LocalServices;
 import io.github.muntashirakon.adb.android.AdbMdns;
 import io.github.muntashirakon.adb.android.AndroidUtils;
+import okhttp3.*;
 
 public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener {
     private static final String PREFERENCE_KEY = "default";
@@ -167,6 +175,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         setContentView(R.layout.activity_main);
         final Button startButton = findViewById(R.id.button_start);
         final Button pairButton = findViewById(R.id.button_pair);
+        final Button patreonButton = findViewById(R.id.button_patreon);
+        final EditText editText_patreon = findViewById(R.id.editText_patreon);
         AssetManager assetManager = getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -177,6 +187,30 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             Log.e("Asset Manager", e.getMessage());
         }
         sendCommands = new SendCommands();
+
+        patreonButton.setOnClickListener(v -> {
+            executor.submit(() -> {
+                String url = "https://www.patreon.com/cagnulein";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+            });
+        });
+        editText_patreon.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                getAttributes();
+            }
+        });
 
         pairButton.setOnClickListener(v -> {
             executor.submit(() -> {
@@ -567,6 +601,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             public void run() {
                 final EditText editText_patreon = findViewById(R.id.editText_patreon);
                 String userEmail = editText_patreon.getText().toString();
+                if(userEmail.length() == 0) {
+                    handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
+                    return;
+                }
                 String url = "http://robertoviola.cloud:4010/?supporter=" + userEmail;
 
                 Request request = new Request.Builder()
@@ -583,10 +621,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
                     @Override
                     public void onResponse(okhttp3.Call call, Response response) throws IOException {
-                        if (response.isSuccessful()) {
-                            final String responseData = response.body().string();
-                            handler.post(() -> licenseReply(responseData));
-                        }
+                        final String responseData = response.body().string();
+                        handler.post(() -> licenseReply(responseData));
+
                     }
                 });
             }
@@ -619,11 +656,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 }
 
     private void openWebPageAndCloseApp() {
-        String url = "https://www.patreon.com/cagnulein"; // Sostituisci con l'URL desiderato
+        String url = "https://www.patreon.com/cagnulein";
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(intent);
-        
-        // Chiudi l'app dopo un breve ritardo per assicurarti che il browser si apra
+
         handlerPopup.postDelayed(new Runnable() {
             @Override
             public void run() {
