@@ -100,9 +100,9 @@ public class Scrcpy extends Service {
 
         int[] buf;
         if(!landscape) {
-            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * screenWidth / displayW, (int) touch_event.getY() * screenHeight / displayH};
+            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() *  remote_dev_resolution[0] / displayW, (int) touch_event.getY() * remote_dev_resolution[1] / displayH};
         } else {
-            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * screenHeight / displayW, (int) touch_event.getY() * screenWidth / displayH};
+            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() *  remote_dev_resolution[1] / displayW, (int) touch_event.getY() * remote_dev_resolution[0] / displayH};
         }
         String bufStr = Arrays.toString(buf).replaceAll(",", "");
         logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
