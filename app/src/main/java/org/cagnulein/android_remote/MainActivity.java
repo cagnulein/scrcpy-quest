@@ -296,16 +296,17 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         float this_device_aspect_ratio;
         int padding = 0;
         /*if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("original_aspect_ratio", false))*/ {
-            if (!landscape) {
+            /*if (!landscape)*/ {
                 //Portrait
                 this_device_aspect_ratio = this_dev_height/this_dev_width;
                 if (remote_device_aspect_ratio > this_device_aspect_ratio) {
                     padding = (int)((this_dev_width - (this_dev_height / remote_device_aspect_ratio)) / 2);
-                    linearLayout.setPadding(padding,0,padding,0);
+                    linearLayout.setPadding(padding, 0, padding, 0);
                 } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
-                    //linearLayout.setPadding(0,(int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_width)),0,0);
+                    padding = (int)((this_dev_height - (this_dev_width / remote_device_aspect_ratio)) / 2);
+                    linearLayout.setPadding(0, padding 0, padding);
                 }
-
+/*
             }else{                                                                        //Landscape
                 this_device_aspect_ratio = this_dev_width/this_dev_height;
                 if (remote_device_aspect_ratio > this_device_aspect_ratio) {
@@ -316,7 +317,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     //linearLayout.setPadding(((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0,((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0);
                 }
 
-            }
+            }*/
             logger.info("aspect_ratio " + landscape + " " + remote_device_aspect_ratio + " " + this_device_aspect_ratio + " " + this_dev_width + " " + this_dev_height + " " + padding + " " + remote_device_height + " " + remote_device_width);
         }
 
