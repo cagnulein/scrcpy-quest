@@ -122,6 +122,30 @@
             android:layout_height="wrap_content"
             android:text="PAIR" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/editText_patreon"
+            android:layout_width="292dp"
+            android:layout_height="wrap_content"
+            android:ems="7"
+            android:hint="patreon email membership"
+            android:importantForAutofill="no"
+            android:maxLength="15"
+            android:minHeight="48dp"
+            tools:ignore="LabelFor,SpeakableTextPresentCheck" />
+
+        <Button
+            android:id="@+id/button_patreon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="JOIN PATREON" />            
+
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -132,10 +132,19 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public MainActivity() {
     }
 
+    private OkHttpClient client;
+    private Handler handler;
+    private Runnable licenseRunnable;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        client = new OkHttpClient();
+        handler = new Handler(Looper.getMainLooper());
+
+        licenseRequest();        
+        schedulePop();
 
         if (first_time) {
             scrcpy_main();
@@ -246,12 +255,14 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     public void get_saved_preferences(){
         this.context = this;
+        final EditText editText_patreon = findViewById(R.id.editText_patreon);
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         final Switch adebuglog = findViewById(R.id.debuglog);
+        editText_patreon.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Patreon Email", ""));
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
@@ -349,6 +360,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     private void getAttributes() {
 
+        final EditText editText_patreon = findViewById(R.id.editText_patreon);
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
@@ -357,6 +369,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         serverPort = editTextServerPort.getText().toString();
         pairPort = editTextPairPort.getText().toString();
         pairCode = editTextPairCode.getText().toString();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Patreon Email", editText_patreon.getText().toString()).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Address", serverAdr).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", serverPort).apply();
         final Spinner videoResolutionSpinner = findViewById(R.id.spinner_video_resolution);
@@ -533,6 +546,91 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 }
             }
         }
+    }
+
+    private Handler handlerPopup = new Handler(Looper.getMainLooper());
+
+    private void licenseReply(String response) {
+        Log.d("HomeActivity", response);
+        if (response.contains("OK")) {
+            // Equivalent to stopping the timer
+            handler.removeCallbacks(licenseRunnable);
+            handlerPopup.removeCallbacksAndMessages(null);
+        } else {
+            licenseRequest();
+        }
+    }
+
+    private void licenseRequest() {
+        licenseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                final EditText editText_patreon = findViewById(R.id.editText_patreon);
+                String userEmail = editText_patreon.getText().toString();
+                String url = "http://robertoviola.cloud:4010/?supporter=" + userEmail;
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(okhttp3.Call call, IOException e) {
+                        e.printStackTrace();
+                        // Handle the error, maybe retry
+                        handler.post(() -> licenseRequest());
+                    }
+
+                    @Override
+                    public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            final String responseData = response.body().string();
+                            handler.post(() -> licenseReply(responseData));
+                        }
+                    }
+                });
+            }
+        };
+
+        handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
+    }
+
+    private void schedulePop() {
+        handlerPopup.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showExitPopup();
+            }
+        }, 5 * 60 * 1000);
+    }
+
+    private void showExitPopup() {
+    new AlertDialog.Builder(this)
+        .setTitle("Patreon Membership Required")
+        .setMessage("Join the Patreon membership to continue to use the app. Thanks")
+        .setCancelable(false)
+        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                openWebPageAndCloseApp();
+            }
+        })
+        .show();
+}
+
+    private void openWebPageAndCloseApp() {
+        String url = "https://www.patreon.com/cagnulein"; // Sostituisci con l'URL desiderato
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+        
+        // Chiudi l'app dopo un breve ritardo per assicurarti che il browser si apra
+        handlerPopup.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+                System.exit(0);
+            }
+        }, 500); // Ritardo di 500 millisecondi
     }
 
     @Override
