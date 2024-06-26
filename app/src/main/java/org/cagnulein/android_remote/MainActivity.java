@@ -304,7 +304,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     linearLayout.setPadding(padding, 0, padding, 0);
                 } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
                     padding = (int)((this_dev_height - (this_dev_width / remote_device_aspect_ratio)) / 2);
-                    linearLayout.setPadding(0, padding 0, padding);
+                    linearLayout.setPadding(0, padding, 0, padding);
                 }
 /*
             }else{                                                                        //Landscape
