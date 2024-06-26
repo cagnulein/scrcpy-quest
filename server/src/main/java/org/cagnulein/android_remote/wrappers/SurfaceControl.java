@@ -1,10 +1,11 @@
 package org.cagnulein.android_remote.wrappers;
 
+import org.cagnulein.android_remote.Ln;
+
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Surface;
 
 import java.lang.reflect.Method;
@@ -104,7 +105,7 @@ public final class SurfaceControl {
             // call getInternalDisplayToken()
             return (IBinder) method.invoke(null);
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return null;
         }
     }
@@ -121,7 +122,7 @@ public final class SurfaceControl {
             Method method = getGetPhysicalDisplayTokenMethod();
             return (IBinder) method.invoke(null, physicalDisplayId);
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return null;
         }
     }
@@ -147,7 +148,7 @@ public final class SurfaceControl {
             Method method = getGetPhysicalDisplayIdsMethod();
             return (long[]) method.invoke(null);
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return null;
         }
     }
@@ -165,7 +166,7 @@ public final class SurfaceControl {
             method.invoke(null, displayToken, mode);
             return true;
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return false;
         }
     }

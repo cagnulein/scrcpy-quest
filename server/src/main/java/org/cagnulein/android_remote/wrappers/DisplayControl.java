@@ -1,10 +1,11 @@
 package org.cagnulein.android_remote.wrappers;
 
+import org.cagnulein.android_remote.Ln;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.lang.reflect.Method;
 
@@ -29,7 +30,7 @@ public final class DisplayControl {
             loadMethod.setAccessible(true);
             loadMethod.invoke(Runtime.getRuntime(), displayControlClass, "android_servers");
         } catch (Throwable e) {
-            Log.e("scrcpy", "Could not initialize DisplayControl" + e);
+            Ln.e("Could not initialize DisplayControl", e);
             // Do not throw an exception here, the methods will fail when they are called
         }
         CLASS = displayControlClass;
@@ -54,7 +55,7 @@ public final class DisplayControl {
             Method method = getGetPhysicalDisplayTokenMethod();
             return (IBinder) method.invoke(null, physicalDisplayId);
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return null;
         }
     }
@@ -71,7 +72,7 @@ public final class DisplayControl {
             Method method = getGetPhysicalDisplayIdsMethod();
             return (long[]) method.invoke(null);
         } catch (ReflectiveOperationException e) {
-            Log.e("scrcpy", "Could not invoke method" + e);
+            Ln.e("Could not invoke method", e);
             return null;
         }
     }

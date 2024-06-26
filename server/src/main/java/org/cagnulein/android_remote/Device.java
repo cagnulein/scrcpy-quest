@@ -14,9 +14,10 @@ import org.cagnulein.android_remote.wrappers.SurfaceControl;
 
 public final class Device {
 
-    private final ServiceManager serviceManager = new ServiceManager();
     private ScreenInfo screenInfo;
     private RotationListener rotationListener;
+
+    private final int displayId;
 
     public Device(Options options) {
         screenInfo = computeScreenInfo(options.getMaxSize());
@@ -51,7 +52,8 @@ public final class Device {
         // - scale down the great side of the screen to maxSize (if necessary);
         // - scale down the other side so that the aspect ratio is preserved;
         // - round this value to the nearest multiple of 8 (H.264 only accepts multiples of 8)
-        DisplayInfo displayInfo = serviceManager.getDisplayManager().getDisplayInfo();
+        //displayId = options.getDisplayId();
+        DisplayInfo displayInfo = ServiceManager.getDisplayManager().getDisplayInfo(/*displayId*/0);
         boolean rotated = (displayInfo.getRotation() & 1) != 0;
         Size deviceSize = displayInfo.getSize();
         int w = deviceSize.getWidth() & ~7; // in case it's not a multiple of 8
@@ -91,15 +93,15 @@ public final class Device {
     }
 
     public boolean injectInputEvent(InputEvent inputEvent, int mode) {
-        return serviceManager.getInputManager().injectInputEvent(inputEvent, mode);
+        return ServiceManager.getInputManager().injectInputEvent(inputEvent, mode);
     }
 
     public boolean isScreenOn() {
-        return serviceManager.getPowerManager().isScreenOn();
+        return ServiceManager.getPowerManager().isScreenOn();
     }
 
     public void registerRotationWatcher(IRotationWatcher rotationWatcher) {
-        serviceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
+        ServiceManager.getWindowManager().registerRotationWatcher(rotationWatcher);
     }
 
     public synchronized void setRotationListener(RotationListener rotationListener) {
