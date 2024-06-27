@@ -27,6 +27,7 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
@@ -553,6 +554,23 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     @Override
     public void onBackPressed() {
         scrcpy.sendKeyevent(4);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return handleKeyEvent(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return handleKeyEvent(keyCode, event);
+    }
+
+    private boolean handleKeyEvent(int keyCode, KeyEvent event) {
+        Log.d("keyboard", event.toString());
+        // Se non hai gestito l'evento, passa al gestore predefinito
+        scrcpy.sendKeyevent(keyCode);
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
