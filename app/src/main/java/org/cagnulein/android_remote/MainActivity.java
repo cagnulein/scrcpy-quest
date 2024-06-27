@@ -151,9 +151,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         client = new OkHttpClient();
         handler = new Handler(Looper.getMainLooper());
 
-        licenseRequest();        
-        schedulePop();
-
         if (first_time) {
             scrcpy_main();
         } else {
@@ -173,6 +170,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public void scrcpy_main(){
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+
+        licenseRequest();
+        schedulePop();
+
         final Button startButton = findViewById(R.id.button_start);
         final Button pairButton = findViewById(R.id.button_pair);
         final Button patreonButton = findViewById(R.id.button_patreon);
@@ -296,7 +297,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         final Switch adebuglog = findViewById(R.id.debuglog);
-        editText_patreon.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Patreon Email", ""));
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
@@ -316,6 +316,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 aSwitch1.setVisibility(View.VISIBLE);
             }
         });
+
+        // last one so the edit of this will not corrupt anything
+        editText_patreon.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Patreon Email", ""));
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -549,22 +552,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @Override
     public void onBackPressed() {
-        if (timestamp == 0) {
-            timestamp = SystemClock.uptimeMillis();
-            Toast.makeText(context, "Press again to exit", Toast.LENGTH_SHORT).show();
-        } else {
-            long now = SystemClock.uptimeMillis();
-            if (now < timestamp + 1000) {
-                timestamp = 0;
-                if (serviceBound) {
-                    scrcpy.StopService();
-                    unbindService(serviceConnection);
-                }
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-            timestamp = 0;
-        }
+        setContentView(R.layout.activity_main);
+        get_saved_preferences();
     }
 
     @Override
@@ -596,9 +585,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     }
 
     private void licenseRequest() {
-        licenseRunnable = new Runnable() {
-            @Override
-            public void run() {
+        runOnUiThread(() -> {
+
                 final EditText editText_patreon = findViewById(R.id.editText_patreon);
                 String userEmail = editText_patreon.getText().toString();
                 if(userEmail.length() == 0) {
@@ -626,8 +614,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
                     }
                 });
-            }
-        };
+        });
 
         handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
     }
@@ -642,31 +629,18 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     }
 
     private void showExitPopup() {
-    new AlertDialog.Builder(this)
-        .setTitle("Patreon Membership Required")
-        .setMessage("Join the Patreon membership to continue to use the app. Thanks")
-        .setCancelable(false)
-        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                openWebPageAndCloseApp();
-            }
-        })
-        .show();
-}
-
-    private void openWebPageAndCloseApp() {
-        String url = "https://www.patreon.com/cagnulein";
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(intent);
-
-        handlerPopup.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                finish();
-                System.exit(0);
-            }
-        }, 500); // Ritardo di 500 millisecondi
+        new AlertDialog.Builder(this)
+                .setTitle("Patreon Membership Required")
+                .setMessage("Join the Patreon membership to continue to use the app. Thanks!")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setContentView(R.layout.activity_main);
+                        get_saved_preferences();
+                    }
+                })
+                .show();
     }
 
     @Override
