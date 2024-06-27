@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import io.github.muntashirakon.adb.AbsAdbConnectionManager;
 import io.github.muntashirakon.adb.AdbPairingRequiredException;
@@ -92,8 +93,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             scrcpy = ((Scrcpy.MyServiceBinder) iBinder).getService();
             scrcpy.setServiceCallbacks(MainActivity.this);
             serviceBound = true;
+            Log.d("screen", screenHeight + " " + screenWidth);
            if (first_time) {
-                scrcpy.start(surface, serverAdr, screenHeight, screenWidth);
+                scrcpy.start(surface, serverAdr, screenWidth, screenHeight);
                int count = 100;
                while (count!=0 && !scrcpy.check_socket_connection()){
                    count --;
@@ -118,7 +120,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                first_time = false;
                }
             } else {
-                scrcpy.setParms(surface, screenWidth, screenHeight);
+                scrcpy.setParms(surface, screenHeight, screenWidth);
             }
             set_display_nd_touch();
         }
@@ -275,6 +277,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @SuppressLint("ClickableViewAccessibility")
     public void set_display_nd_touch() {
+        final View decodeSurface = findViewById(R.id.decoder_surface);
         DisplayMetrics metrics = new DisplayMetrics();
         if (ViewConfiguration.get(context).hasPermanentMenuKey()) {
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -286,39 +289,47 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         float this_dev_width = metrics.widthPixels;
         if (nav && !no_control){
             if (landscape){
-                this_dev_width = this_dev_width - 96;
+                //this_dev_width = this_dev_width - 96;
             }else {                                                 //100 is the height of nav bar but need multiples of 8.
                 //this_dev_height = this_dev_height - 96;
             }
         }
-        float remote_device_aspect_ratio = remote_device_height/remote_device_width;
-
         float this_device_aspect_ratio;
         int padding = 0;
-        /*if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("original_aspect_ratio", false))*/ {
-            /*if (!landscape) {*/
+        float remote_device_aspect_ratio = 0;
+            /*if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("original_aspect_ratio", false))*/ {
+            if (!landscape) {
                 //Portrait
+                remote_device_aspect_ratio = remote_device_height/remote_device_width;
                 this_device_aspect_ratio = this_dev_height/this_dev_width;
                 if (remote_device_aspect_ratio > this_device_aspect_ratio) {
                     padding = (int)((this_dev_width - (this_dev_height / remote_device_aspect_ratio)) / 2);
-                    linearLayout.setPadding(padding, 0, padding, 0);
+                    if(padding >= 0)
+                        linearLayout.setPadding(padding, 0, padding, 0);
                 } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
-                    padding = (int)((this_dev_height - (this_dev_width / remote_device_aspect_ratio)) / 2);
-                    linearLayout.setPadding(0, padding, 0, padding);
-                }
-/*
-            }else{                                                                        //Landscape
-                this_device_aspect_ratio = this_dev_width/this_dev_height;
-                if (remote_device_aspect_ratio > this_device_aspect_ratio) {
-                    padding = (int)((this_dev_height - (this_dev_width / remote_device_aspect_ratio)) / 2);
-                    linearLayout.setPadding(0,(int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_height)/2),0,(int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_height)/2));
-                } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
-                    //padding = (int)((this_dev_height - (this_dev_width / remote_device_aspect_ratio)) / 2);
-                    //linearLayout.setPadding(((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0,((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0);
+                    padding = (int)((this_dev_height - (this_dev_width * remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(0, padding, 0, padding);
                 }
 
-            }*/
-            logger.info("aspect_ratio " + landscape + " " + remote_device_aspect_ratio + " " + this_device_aspect_ratio + " " + this_dev_width + " " + this_dev_height + " " + padding + " " + remote_device_height + " " + remote_device_width);
+            }else{
+                //Landscape
+                remote_device_aspect_ratio = remote_device_width/remote_device_height;
+                this_device_aspect_ratio = this_dev_height/this_dev_width;
+                if (remote_device_aspect_ratio > this_device_aspect_ratio) {
+                    padding = (int)((this_dev_width - (this_dev_height / remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(padding, 0, padding, 0);
+                } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
+                    padding = (int)((this_dev_height - (this_dev_width * remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(0, padding, 0, padding);
+                }
+            }
+            if(padding < 0)
+                linearLayout.setPadding(0, 0, 0, 0);
+
+            Log.d("aspect_ratio ",  landscape + " " + remote_device_aspect_ratio + " " + this_device_aspect_ratio + " " + this_dev_width + " " + this_dev_height + " " + padding + " " + remote_device_width + " " + remote_device_height  + " " + screenWidth + " " + screenHeight);
         }
 
         if (!no_control) {
@@ -456,6 +467,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public void loadNewRotation() {
+        Log.d("aspect_ratio", "loadNewRotation");
         if (first_time){
             int[] rem_res = scrcpy.get_remote_device_resolution();
             remote_device_height = rem_res[1];
@@ -467,6 +479,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         result_of_Rotation = true;
         landscape = !landscape;
         swapDimensions();
+        runOnUiThread(() -> {
+            set_display_nd_touch();
+        });
+
         /*if (landscape) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
