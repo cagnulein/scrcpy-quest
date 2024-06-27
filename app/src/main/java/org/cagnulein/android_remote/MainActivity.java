@@ -177,7 +177,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Button startButton = findViewById(R.id.button_start);
         final Button pairButton = findViewById(R.id.button_pair);
         final Button patreonButton = findViewById(R.id.button_patreon);
-        final EditText editText_patreon = findViewById(R.id.editText_patreon);
+        final Button patreonOK = findViewById(R.id.button_confirmpatreon);
         AssetManager assetManager = getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -196,21 +196,21 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 startActivity(intent);
             });
         });
-        editText_patreon.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                getAttributes();
-            }
+        patreonOK.setOnClickListener(v -> {
+            getAttributes();
+            new AlertDialog.Builder(this)
+                    .setTitle("Thanks!")
+                    .setMessage("Restart the app to apply the license! It could take some hours to approve your license, thanks.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            System.exit(0);
+                        }
+                    })
+                    .show();
         });
 
         pairButton.setOnClickListener(v -> {
@@ -552,8 +552,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @Override
     public void onBackPressed() {
-        setContentView(R.layout.activity_main);
-        get_saved_preferences();
+        scrcpy.sendKeyevent(4);
     }
 
     @Override
@@ -631,13 +630,14 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private void showExitPopup() {
         new AlertDialog.Builder(this)
                 .setTitle("Patreon Membership Required")
-                .setMessage("Join the Patreon membership to continue to use the app. Thanks!")
+                .setMessage("Join the Patreon membership to continue to use the app. You will see the link on the main page. The app will now close and you can insert the Patreon credentials on the main page. Thanks")
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        setContentView(R.layout.activity_main);
-                        get_saved_preferences();
+                        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", "").apply();
+                        finish();
+                        System.exit(0);
                     }
                 })
                 .show();

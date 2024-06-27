@@ -137,13 +137,19 @@
                 android:minHeight="48dp"
                 tools:ignore="LabelFor,SpeakableTextPresentCheck" />
 
+            <Button
+                android:id="@+id/button_confirmpatreon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OK" />
+
+        </LinearLayout>
+
         <Button
             android:id="@+id/button_patreon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="JOIN PATREON" />            
-
-        </LinearLayout>
+            android:text="JOIN PATREON" />
 
         <TextView
             android:layout_width="match_parent"
