@@ -154,46 +154,12 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         logger.info("onCreate");
     }
 
-    private void simulateSwipe(float startX, float startY, float endX, float endY) {
-        long downTime = SystemClock.uptimeMillis();
-        long eventTime = downTime;
-
-        MotionEvent touchDown = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, startX, startY, 0);
-        MotionEvent touchMove = MotionEvent.obtain(downTime, eventTime + 1, MotionEvent.ACTION_MOVE, endX, endY, 0);
-        MotionEvent touchUp = MotionEvent.obtain(downTime, eventTime + 200, MotionEvent.ACTION_UP, endX, endY, 0);
-
-        scrcpy.touchevent(touchDown, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
-        scrcpy.touchevent(touchMove, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
-        scrcpy.touchevent(touchUp, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
-
-        touchDown.recycle();
-        touchMove.recycle();
-        touchUp.recycle();
-    }
-
     @Override
     public boolean onGenericMotion(View v, MotionEvent event) {
 
         // Verifica se l'evento proviene da un joystick
         if (event.getAction() == MotionEvent.ACTION_SCROLL) {
-            float hScroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
-            float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
-
-            if (hScroll < 0) {
-                Log.d("joystick", "Scroll verso sinistra");
-                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY());
-            } else if (hScroll > 0) {
-                Log.d("joystick", "Scroll verso destra");
-                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY());
-            }
-
-            if (vScroll < 0) {
-                Log.d("joystick", "Scroll verso su");
-                simulateSwipe(event.getX(), event.getY() , event.getX(), event.getY() + 100);
-            } else if (vScroll > 0) {
-                Log.d("joystick", "Scroll verso giù");
-                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY() - 100);
-            }
+            scrcpy.touchevent(event, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
 
             return true;
         }

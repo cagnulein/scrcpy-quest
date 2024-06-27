@@ -84,7 +84,16 @@ public class EventController {
                             hit = true;
                             then = now;
                         }
+                    } else if(action == MotionEvent.ACTION_SCROLL) {
+                        int button = buffer[1];
+                        int X = buffer[2];
+                        int Y = buffer[3];
+                        int hScroll = X;
+                        int vScroll = Y;
 
+                        setScroll(hScroll, vScroll);
+                        MotionEvent event = MotionEvent.obtain(lastMouseDown, now, action, 1, pointerProperties, pointerCoords, 0, button, 1f, 1f, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
+                        injectEvent(event);
                     } else {
                         if (action == MotionEvent.ACTION_DOWN) {
                             lastMouseDown = now;

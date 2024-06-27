@@ -99,11 +99,18 @@ public class Scrcpy extends Service {
     public boolean touchevent(MotionEvent touch_event, int displayW, int displayH, boolean landscape) {
 
         int[] buf;
-        if(!landscape) {
-            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() *  remote_dev_resolution[0] / displayW, (int) touch_event.getY() * remote_dev_resolution[1] / displayH};
+        if(touch_event.getAction() == MotionEvent.ACTION_SCROLL) {
+            float hScroll = touch_event.getAxisValue(MotionEvent.AXIS_HSCROLL);
+            float vScroll = touch_event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) hScroll, (int) vScroll};
         } else {
-            buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() *  remote_dev_resolution[1] / displayW, (int) touch_event.getY() * remote_dev_resolution[0] / displayH};
+            if (!landscape) {
+                buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * remote_dev_resolution[0] / displayW, (int) touch_event.getY() * remote_dev_resolution[1] / displayH};
+            } else {
+                buf = new int[]{touch_event.getAction(), touch_event.getButtonState(), (int) touch_event.getX() * remote_dev_resolution[1] / displayW, (int) touch_event.getY() * remote_dev_resolution[0] / displayH};
+            }
         }
+
         String bufStr = Arrays.toString(buf).replaceAll(",", "");
         logger.info("touchevent " + bufStr + " " + landscape + " " + displayW + " " + screenWidth + " " +displayH + " " + screenHeight);
 
