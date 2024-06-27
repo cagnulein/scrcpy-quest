@@ -154,6 +154,23 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         logger.info("onCreate");
     }
 
+    private void simulateSwipe(float startX, float startY, float endX, float endY) {
+        long downTime = SystemClock.uptimeMillis();
+        long eventTime = downTime;
+
+        MotionEvent touchDown = MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, startX, startY, 0);
+        MotionEvent touchMove = MotionEvent.obtain(downTime, eventTime + 1, MotionEvent.ACTION_MOVE, endX, endY, 0);
+        MotionEvent touchUp = MotionEvent.obtain(downTime, eventTime + 200, MotionEvent.ACTION_UP, endX, endY, 0);
+
+        scrcpy.touchevent(touchDown, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
+        scrcpy.touchevent(touchMove, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
+        scrcpy.touchevent(touchUp, surfaceView.getWidth(), surfaceView.getHeight(), landscape);
+
+        touchDown.recycle();
+        touchMove.recycle();
+        touchUp.recycle();
+    }
+
     @Override
     public boolean onGenericMotion(View v, MotionEvent event) {
 
@@ -164,18 +181,18 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
             if (hScroll < 0) {
                 Log.d("joystick", "Scroll verso sinistra");
-                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_LEFT);
+                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY());
             } else if (hScroll > 0) {
                 Log.d("joystick", "Scroll verso destra");
-                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_RIGHT);
+                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY());
             }
 
             if (vScroll < 0) {
-                Log.d("joystick", "Scroll verso l'alto");
-                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_UP);
+                Log.d("joystick", "Scroll verso su");
+                simulateSwipe(event.getX(), event.getY() , event.getX(), event.getY() + 100);
             } else if (vScroll > 0) {
-                Log.d("joystick", "Scroll verso il basso");
-                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_DOWN);
+                Log.d("joystick", "Scroll verso giù");
+                simulateSwipe(event.getX() , event.getY(), event.getX(), event.getY() - 100);
             }
 
             return true;
