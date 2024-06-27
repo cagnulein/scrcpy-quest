@@ -9,7 +9,7 @@ android {
         applicationId "org.cagnulein.android_remote"
         minSdkVersion 29
         targetSdkVersion 32
-        versionCode 17
+        versionCode 18
         versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	    setProperty("archivesBaseName", "android_remote")
@@ -55,6 +55,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation 'org.khronos.openxr:openxr_loader_for_android:1.1.37'
 
 }
