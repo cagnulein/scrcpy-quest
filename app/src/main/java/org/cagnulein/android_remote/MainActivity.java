@@ -2,8 +2,10 @@ package org.cagnulein.android_remote;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
@@ -12,14 +14,20 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
@@ -52,6 +60,7 @@ import io.github.muntashirakon.adb.AdbStream;
 import io.github.muntashirakon.adb.LocalServices;
 import io.github.muntashirakon.adb.android.AdbMdns;
 import io.github.muntashirakon.adb.android.AndroidUtils;
+import okhttp3.*;
 
 public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener {
     private static final String PREFERENCE_KEY = "default";
@@ -132,10 +141,15 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public MainActivity() {
     }
 
+    private OkHttpClient client;
+    private Handler handler;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        client = new OkHttpClient();
+        handler = new Handler(Looper.getMainLooper());
 
         if (first_time) {
             scrcpy_main();
@@ -156,8 +170,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public void scrcpy_main(){
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+
         final Button startButton = findViewById(R.id.button_start);
         final Button pairButton = findViewById(R.id.button_pair);
+        final Button patreonButton = findViewById(R.id.button_patreon);
+        final Button patreonOK = findViewById(R.id.button_confirmpatreon);
         AssetManager assetManager = getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -168,6 +185,30 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             Log.e("Asset Manager", e.getMessage());
         }
         sendCommands = new SendCommands();
+
+        patreonButton.setOnClickListener(v -> {
+            executor.submit(() -> {
+                String url = "https://www.patreon.com/cagnulein";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+            });
+        });
+
+        patreonOK.setOnClickListener(v -> {
+            getAttributes();
+            new AlertDialog.Builder(this)
+                    .setTitle("Thanks!")
+                    .setMessage("Restart the app to apply the license! It could take some hours to approve your license, thanks.")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            System.exit(0);
+                        }
+                    })
+                    .show();
+        });
 
         pairButton.setOnClickListener(v -> {
             executor.submit(() -> {
@@ -201,6 +242,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });
         get_saved_preferences();
+
+        licenseRequest();
+        schedulePop();
 /*
         executor.submit(() -> {
             AtomicInteger atomicPort = new AtomicInteger(-1);
@@ -246,6 +290,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     public void get_saved_preferences(){
         this.context = this;
+        final EditText editText_patreon = findViewById(R.id.editText_patreon);
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
@@ -271,6 +316,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 aSwitch1.setVisibility(View.VISIBLE);
             }
         });
+
+        // last one so the edit of this will not corrupt anything
+        editText_patreon.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Patreon Email", ""));
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -349,6 +397,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     private void getAttributes() {
 
+        final EditText editText_patreon = findViewById(R.id.editText_patreon);
         final EditText editTextServerHost = findViewById(R.id.editText_server_host);
         final EditText editTextServerPort = findViewById(R.id.editText_server_port);
         final EditText editTextPairPort = findViewById(R.id.editText_pair_port);
@@ -357,6 +406,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         serverPort = editTextServerPort.getText().toString();
         pairPort = editTextPairPort.getText().toString();
         pairCode = editTextPairCode.getText().toString();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Patreon Email", editText_patreon.getText().toString()).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Address", serverAdr).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", serverPort).apply();
         final Spinner videoResolutionSpinner = findViewById(R.id.spinner_video_resolution);
@@ -502,22 +552,24 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @Override
     public void onBackPressed() {
-        if (timestamp == 0) {
-            timestamp = SystemClock.uptimeMillis();
-            Toast.makeText(context, "Press again to exit", Toast.LENGTH_SHORT).show();
-        } else {
-            long now = SystemClock.uptimeMillis();
-            if (now < timestamp + 1000) {
-                timestamp = 0;
-                if (serviceBound) {
-                    scrcpy.StopService();
-                    unbindService(serviceConnection);
-                }
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(1);
-            }
-            timestamp = 0;
-        }
+        scrcpy.sendKeyevent(4);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return handleKeyEvent(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        return handleKeyEvent(keyCode, event);
+    }
+
+    private boolean handleKeyEvent(int keyCode, KeyEvent event) {
+        Log.d("keyboard", event.toString());
+        // Se non hai gestito l'evento, passa al gestore predefinito
+        scrcpy.sendKeyevent(keyCode);
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -534,6 +586,84 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         }
     }
+
+    private Handler handlerPopup = new Handler(Looper.getMainLooper());
+
+    private void licenseReply(String response) {
+        Log.d("HomeActivity", response);
+        if (response.contains("OK")) {
+            // Equivalent to stopping the timer
+            handler.removeCallbacks(licenseRunnable);
+            handlerPopup.removeCallbacksAndMessages(null);
+        } else {
+            handler.postDelayed(licenseRunnable, 10000); // 30 seconds delay
+        }
+    }
+
+    private void licenseRequest() {
+        runOnUiThread(() -> {
+                final EditText editText_patreon = findViewById(R.id.editText_patreon);
+                String userEmail = editText_patreon.getText().toString();
+                if(userEmail.length() == 0) {
+                    handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
+                    return;
+                }
+                String url = "http://robertoviola.cloud:4010/?supporter=" + userEmail;
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(okhttp3.Call call, IOException e) {
+                        e.printStackTrace();
+                        // Handle the error, maybe retry
+                        handler.post(() -> licenseRequest());
+                    }
+
+                    @Override
+                    public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                        final String responseData = response.body().string();
+                        handler.post(() -> licenseReply(responseData));
+
+                    }
+                });
+        });
+    }
+
+    private void schedulePop() {
+        handlerPopup.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showExitPopup();
+            }
+        }, 5 * 60 * 1000);
+    }
+
+    private void showExitPopup() {
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", "").apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().apply();
+        new AlertDialog.Builder(this)
+                .setTitle("Patreon Membership Required")
+                .setMessage("Join the Patreon membership to continue to use the app. You will see the link on the main page. The app will now close and you can insert the Patreon credentials on the main page. Thanks")
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                        System.exit(0);
+                    }
+                })
+                .show();
+    }
+
+    private Runnable licenseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            licenseRequest();
+        }
+    };
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
