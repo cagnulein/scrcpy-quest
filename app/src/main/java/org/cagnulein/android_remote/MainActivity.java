@@ -20,6 +20,9 @@ import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.InputDevice;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
@@ -53,7 +56,7 @@ import io.github.muntashirakon.adb.LocalServices;
 import io.github.muntashirakon.adb.android.AdbMdns;
 import io.github.muntashirakon.adb.android.AndroidUtils;
 
-public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener {
+public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, SensorEventListener, View.OnGenericMotionListener {
     private static final String PREFERENCE_KEY = "default";
     private static final String PREFERENCE_SPINNER_RESOLUTION = "spinner_resolution";
     private static final String PREFERENCE_SPINNER_BITRATE = "spinner_bitrate";
@@ -151,6 +154,36 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         logger.info("onCreate");
     }
 
+    @Override
+    public boolean onGenericMotion(View v, MotionEvent event) {
+
+        // Verifica se l'evento proviene da un joystick
+        if (event.getAction() == MotionEvent.ACTION_SCROLL) {
+            float hScroll = event.getAxisValue(MotionEvent.AXIS_HSCROLL);
+            float vScroll = event.getAxisValue(MotionEvent.AXIS_VSCROLL);
+
+            if (hScroll < 0) {
+                Log.d("joystick", "Scroll verso sinistra");
+                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_LEFT);
+            } else if (hScroll > 0) {
+                Log.d("joystick", "Scroll verso destra");
+                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_RIGHT);
+            }
+
+            if (vScroll < 0) {
+                Log.d("joystick", "Scroll verso l'alto");
+                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_UP);
+            } else if (vScroll > 0) {
+                Log.d("joystick", "Scroll verso il basso");
+                scrcpy.sendKeyevent(KeyEvent.KEYCODE_DPAD_DOWN);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
 
     @SuppressLint("SourceLockedOrientationActivity")
     public void scrcpy_main(){
@@ -241,6 +274,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });*/
         startButton.performClick();
+        // Imposta il listener per l'intera vista
+        getWindow().getDecorView().setOnGenericMotionListener(this);
     }
 
 
@@ -540,4 +575,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     }
 
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+        super.onPointerCaptureChanged(hasCapture);
+    }
 }
