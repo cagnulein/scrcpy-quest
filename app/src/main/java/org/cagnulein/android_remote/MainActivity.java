@@ -143,7 +143,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     private OkHttpClient client;
     private Handler handler;
-    private Runnable licenseRunnable;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -171,9 +170,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     public void scrcpy_main(){
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
-
-        licenseRequest();
-        schedulePop();
 
         final Button startButton = findViewById(R.id.button_start);
         final Button pairButton = findViewById(R.id.button_pair);
@@ -246,6 +242,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });
         get_saved_preferences();
+
+        licenseRequest();
+        schedulePop();
 /*
         executor.submit(() -> {
             AtomicInteger atomicPort = new AtomicInteger(-1);
@@ -597,13 +596,12 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             handler.removeCallbacks(licenseRunnable);
             handlerPopup.removeCallbacksAndMessages(null);
         } else {
-            licenseRequest();
+            handler.postDelayed(licenseRunnable, 10000); // 30 seconds delay
         }
     }
 
     private void licenseRequest() {
         runOnUiThread(() -> {
-
                 final EditText editText_patreon = findViewById(R.id.editText_patreon);
                 String userEmail = editText_patreon.getText().toString();
                 if(userEmail.length() == 0) {
@@ -632,8 +630,6 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                     }
                 });
         });
-
-        handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
     }
 
     private void schedulePop() {
@@ -646,6 +642,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     }
 
     private void showExitPopup() {
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", "").apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().apply();
         new AlertDialog.Builder(this)
                 .setTitle("Patreon Membership Required")
                 .setMessage("Join the Patreon membership to continue to use the app. You will see the link on the main page. The app will now close and you can insert the Patreon credentials on the main page. Thanks")
@@ -653,13 +651,19 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putString("Server Port", "").apply();
                         finish();
                         System.exit(0);
                     }
                 })
                 .show();
     }
+
+    private Runnable licenseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            licenseRequest();
+        }
+    };
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
