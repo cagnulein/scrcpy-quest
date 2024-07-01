@@ -277,7 +277,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 throw new RuntimeException(e);
             }
             try {
-                manager.autoConnect(context, 500);
+                manager.autoConnect(context, 5000);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
