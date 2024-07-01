@@ -179,6 +179,14 @@
             android:layout_height="wrap_content"
             android:entries="@array/options_bitrate_keys"
             android:minHeight="48dp" />
+
+        <Switch
+            android:id="@+id/keep_aspect_ratio"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Keep Aspect Ratio"
+            android:textSize="15sp" />            
     </LinearLayout>
 
 

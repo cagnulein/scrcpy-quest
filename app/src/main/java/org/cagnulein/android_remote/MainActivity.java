@@ -299,12 +299,14 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         final Switch adebuglog = findViewById(R.id.debuglog);
+        final Switch keepaspectratio = findViewById(R.id.keep_aspect_ratio);
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
         aSwitch0.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("No Control", false));
         aSwitch1.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Nav Switch", false));
         adebuglog.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false));
+        keepaspectratio.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Keep Aspect Ratio", false));
         setSpinner(R.array.options_resolution_keys, R.id.spinner_video_resolution, PREFERENCE_SPINNER_RESOLUTION);
         setSpinner(R.array.options_bitrate_keys, R.id.spinner_video_bitrate, PREFERENCE_SPINNER_BITRATE);
         if(aSwitch0.isChecked()){
@@ -345,7 +347,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         float this_device_aspect_ratio;
         int padding = 0;
         float remote_device_aspect_ratio = 0;
-            /*if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("original_aspect_ratio", false))*/ {
+        if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Keep Aspect Ratio", false)) {
             if (!landscape) {
                 //Portrait
                 remote_device_aspect_ratio = remote_device_height/remote_device_width;
@@ -438,9 +440,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Switch a_Switch1 = findViewById(R.id.switch1);
         nav = a_Switch1.isChecked();
         final Switch a_debuglog = findViewById(R.id.debuglog);
+        final Switch keepaspectratio = findViewById(R.id.keep_aspect_ratio);
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("No Control", no_control).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Nav Switch", nav).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Debug Log", a_debuglog.isChecked()).apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Keep Aspect Ratio", keepaspectratio.isChecked()).apply();
 
         final String[] videoResolutions = getResources().getStringArray(R.array.options_resolution_values)[videoResolutionSpinner.getSelectedItemPosition()].split(",");
             screenHeight = Integer.parseInt(videoResolutions[0]);
