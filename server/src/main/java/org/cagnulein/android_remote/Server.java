@@ -1,17 +1,49 @@
 package org.cagnulein.android_remote;
 
+import android.os.BatteryManager;
+
+import java.io.File;
 import java.io.IOException;
 
 public final class Server {
 
     private static String ip = null;
+    public static final String SERVER_PATH;
 
     private Server() {
         // not instantiable
     }
 
+    static {
+        String[] classPaths = System.getProperty("java.class.path").split(File.pathSeparator);
+        // By convention, scrcpy is always executed with the absolute path of scrcpy-server.jar as the first item in the classpath
+        SERVER_PATH = classPaths[0];
+    }
+
+
     private static void scrcpy(Options options) throws IOException {
         final Device device = new Device(options);
+
+        /*if (options.getStayAwake())*/ {
+            int stayOn = BatteryManager.BATTERY_PLUGGED_AC | BatteryManager.BATTERY_PLUGGED_USB | BatteryManager.BATTERY_PLUGGED_WIRELESS;
+            try {
+                String oldValue = Settings.getAndPutValue(Settings.TABLE_GLOBAL, "stay_on_while_plugged_in", String.valueOf(stayOn));
+                try {
+                    int restoreStayOn = Integer.parseInt(oldValue);
+                    if (restoreStayOn != stayOn) {
+                        // Restore only if the current value is different
+                        if (!cleanUp.setRestoreStayOn(restoreStayOn)) {
+                            Ln.e("Could not restore stay on on exit");
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            } catch (SettingsException e) {
+                Ln.e("Could not change \"stay_on_while_plugged_in\"", e);
+            }
+        }
+
         try (DroidConnection connection = DroidConnection.open(ip)) {
             ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
 

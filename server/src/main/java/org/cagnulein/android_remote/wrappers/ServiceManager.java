@@ -8,12 +8,14 @@ import java.lang.reflect.Method;
 
 @SuppressLint("PrivateApi")
 public final class ServiceManager {
-    private final Method getServiceMethod;
+    private static Method getServiceMethod = null;
 
     private WindowManager windowManager;
     private DisplayManager displayManager;
     private InputManager inputManager;
     private PowerManager powerManager;
+
+    private static ActivityManager activityManager;
 
     public ServiceManager() {
         try {
@@ -23,7 +25,7 @@ public final class ServiceManager {
         }
     }
 
-    private IInterface getService(String service, String type) {
+    private static IInterface getService(String service, String type) {
         try {
             IBinder binder = (IBinder) getServiceMethod.invoke(null, service);
             Method asInterfaceMethod = Class.forName(type + "$Stub").getMethod("asInterface", IBinder.class);
@@ -59,5 +61,12 @@ public final class ServiceManager {
             powerManager = new PowerManager(getService("power", "android.os.IPowerManager"));
         }
         return powerManager;
+    }
+
+    public static ActivityManager getActivityManager() {
+        if (activityManager == null) {
+            activityManager = new ActivityManager(getService("activity", "android.app.IActivityManager"));
+        }
+        return activityManager;
     }
 }
