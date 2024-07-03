@@ -175,6 +175,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Button pairButton = findViewById(R.id.button_pair);
         final Button patreonButton = findViewById(R.id.button_patreon);
         final Button patreonOK = findViewById(R.id.button_confirmpatreon);
+        final Button discoverhostportButton = findViewById(R.id.button_discover_hostport);
         AssetManager assetManager = getAssets();
         try {
             InputStream input_Stream = assetManager.open("scrcpy-server.jar");
@@ -231,7 +232,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         startButton.setOnClickListener(v -> {
             local_ip = wifiIpAddress();
             getAttributes();
-            if (!serverAdr.isEmpty() && !serverPort.isEmpty()) {
+            if (serverAdr != null && serverPort != null && !serverAdr.isEmpty() && !serverPort.isEmpty()) {
                 if (sendCommands.SendAdbCommands(context, fileBase64, serverAdr, Integer.parseInt(serverPort), local_ip, videoBitrate, Math.max(screenHeight, screenWidth)) == 0) {
                     start_screen_copy_magic();
                 } else {
@@ -245,13 +246,29 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
         licenseRequest();
         schedulePop();
-/*
-        executor.submit(() -> {
+
+        discoverhostportButton.setOnClickListener(v -> {
             AtomicInteger atomicPort = new AtomicInteger(-1);
             CountDownLatch resolveHostAndPort = new CountDownLatch(1);
 
-            AdbMdns adbMdns = new AdbMdns(getApplication(), AdbMdns.SERVICE_TYPE_TLS_PAIRING, (hostAddress, port) -> {
+            AdbMdns adbMdns = new AdbMdns(getApplication(), AdbMdns.SERVICE_TYPE_TLS_CONNECT, (hostAddress, port) -> {
                 atomicPort.set(port);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final EditText editTextServerHost = findViewById(R.id.editText_server_host);
+                        final EditText editTextServerPort = findViewById(R.id.editText_server_port);
+                        editTextServerPort.setText(String.valueOf(port));
+                        editTextServerHost.setText(hostAddress.getHostAddress());
+                        getAttributes();
+                        serverPort = String.valueOf(port);
+                        serverAdr = hostAddress.getHostAddress();
+
+                        Log.d("mdns", "serverAddr: " + serverAdr + " port:" + serverPort);
+                        startButton.performClick();
+
+                    }
+                });
                 resolveHostAndPort.countDown();
             });
             adbMdns.start();
@@ -264,9 +281,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             } finally {
                 adbMdns.stop();
             }
-        });*/
+        });
 
-        /*
+/*
         executor.submit(() -> {
             AbsAdbConnectionManager manager = null;
             try {
@@ -275,7 +292,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 throw new RuntimeException(e);
             }
             try {
-                manager.autoConnect(context, 500);
+                manager.autoConnect(context, 5000);
+
+                final EditText editTextServerHost = findViewById(R.id.editText_server_host);
+                final EditText editTextServerPort = findViewById(R.id.editText_server_port);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
@@ -284,6 +305,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 throw new RuntimeException(e);
             }
         });*/
+
         startButton.performClick();
     }
 
