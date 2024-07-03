@@ -266,7 +266,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });*/
 
-        /*
+
         executor.submit(() -> {
             AbsAdbConnectionManager manager = null;
             try {
@@ -275,7 +275,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                 throw new RuntimeException(e);
             }
             try {
-                manager.autoConnect(context, 500);
+                manager.autoConnect(context, 5000);
+                manager.getHostAddress()
+                startButton.performClick();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
@@ -283,8 +285,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             } catch (AdbPairingRequiredException e) {
                 throw new RuntimeException(e);
             }
-        });*/
-        startButton.performClick();
+        });
+        //startButton.performClick();
     }
 
 
@@ -522,7 +524,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             scrcpy = null;
             serviceBound = false;
         }
-        System.exit(0);
+        //System.exit(0);
         /*if (serviceBound) {
             scrcpy.pause();
         }*/
