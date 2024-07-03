@@ -117,7 +117,7 @@ public class AdbMdns {
                     boolean isIPv4 = inetAddress instanceof Inet4Address;
                     boolean isLoopback = inetAddress.isLoopbackAddress();
                     Log.d("mdns", inetHost + " " + inetHost.equals(serviceInfo.getHost().getHostAddress()) + " " + isPortAvailable(serviceInfo.getPort()));
-                    if (inetHost != null && isIPv4 && !isLoopback) {
+                    if (inetHost != null && isIPv4 && !isLoopback && !inetHost.equals(serviceInfo.getHost().getHostAddress())) {
                         mServiceName = serviceInfo.getServiceName();
                         mAdbDaemonDiscoveredListener.onPortChanged(serviceInfo.getHost(), serviceInfo.getPort());
                     }
