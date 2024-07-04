@@ -10,10 +10,28 @@ public final class Server {
         // not instantiable
     }
 
+    private void setScreenTimeout(int timeout) {
+        ContentResolver resolver = getContentResolver();
+        Settings.System.putInt(resolver, Settings.System.SCREEN_OFF_TIMEOUT, timeout);
+    }
+
+    private int getScreenTimeout() {
+        ContentResolver resolver = getContentResolver();
+        try {
+            return Settings.System.getInt(resolver, Settings.System.SCREEN_OFF_TIMEOUT);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+            return -1; // Valore di default o errore
+        }
+    }    
+
     private static void scrcpy(Options options) throws IOException {
         final Device device = new Device(options);
         try (DroidConnection connection = DroidConnection.open(ip)) {
             ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
+
+            int oldScreenTimeout = getScreenTimeout();
+            setScreenTimeout(1800000);
 
             // asynchronous
             startEventController(device, connection);
@@ -27,6 +45,8 @@ public final class Server {
                 Ln.d("Screen streaming stopped");
 
             }
+
+            setScreenTimeout(oldScreenTimeout);
         }
     }
 
