@@ -24,8 +24,9 @@ public final class Server {
     private static void scrcpy(Options options) throws IOException {
         final Device device = new Device(options);
 
+        String oldValue = "1800000";
         try {
-            String oldValue = Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", String.valueOf(1800000));
+            oldValue = Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", String.valueOf(1800000));
         } catch (SettingsException e) {
             Ln.e("Could not change \"screen_off_timeout\"", e);
         }
