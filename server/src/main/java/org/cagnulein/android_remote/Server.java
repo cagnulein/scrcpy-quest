@@ -1,17 +1,36 @@
 package org.cagnulein.android_remote;
 
+import android.os.BatteryManager;
+
+import java.io.File;
 import java.io.IOException;
 
 public final class Server {
 
     private static String ip = null;
+    public static final String SERVER_PATH;
 
     private Server() {
         // not instantiable
     }
 
+    static {
+        String[] classPaths = System.getProperty("java.class.path").split(File.pathSeparator);
+        // By convention, scrcpy is always executed with the absolute path of scrcpy-server.jar as the first item in the classpath
+        SERVER_PATH = classPaths[0];
+    }
+
+
     private static void scrcpy(Options options) throws IOException {
         final Device device = new Device(options);
+
+        String oldValue = "1800000";
+        try {
+            oldValue = Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", String.valueOf(1800000));
+        } catch (SettingsException e) {
+            Ln.e("Could not change \"screen_off_timeout\"", e);
+        }
+
         try (DroidConnection connection = DroidConnection.open(ip)) {
             ScreenEncoder screenEncoder = new ScreenEncoder(options.getBitRate());
 
@@ -27,6 +46,12 @@ public final class Server {
                 Ln.d("Screen streaming stopped");
 
             }
+
+            try {
+                Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", oldValue);
+            } catch (SettingsException e) {
+                Ln.e("Could not change \"screen_off_timeout\"", e);
+            }            
         }
     }
 
