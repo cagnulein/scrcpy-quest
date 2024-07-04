@@ -26,7 +26,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
    // implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation 'com.github.MuntashirAkon:libadb-android:3.0.0'
+    //implementation 'com.github.MuntashirAkon:libadb-android:3.0.0'
+    implementation "androidx.annotation:annotation:1.7.1"
+    implementation 'org.bouncycastle:bcprov-jdk15to18:1.78'
+    implementation 'com.github.MuntashirAkon.spake2-java:android:2.0.0'
 
     // Library to generate X509Certificate. You can also use BouncyCastle for
     // this. See example for use-case.
@@ -56,5 +59,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'org.khronos.openxr:openxr_loader_for_android:1.1.37'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 
 }
