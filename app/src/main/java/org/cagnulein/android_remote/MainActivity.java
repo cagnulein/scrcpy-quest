@@ -621,7 +621,8 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private boolean handleKeyEvent(int keyCode, KeyEvent event) {
         Log.d("keyboard", event.toString());
         // Se non hai gestito l'evento, passa al gestore predefinito
-        scrcpy.sendKeyevent(keyCode);
+        if(scrcpy != null)
+            scrcpy.sendKeyevent(keyCode);
         return super.onKeyDown(keyCode, event);
     }
 
@@ -656,6 +657,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     private void licenseRequest() {
         runOnUiThread(() -> {
                 final EditText editText_patreon = findViewById(R.id.editText_patreon);
+                if(editText_patreon == null) {
+                    handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
+                    return;
+                }
                 String userEmail = editText_patreon.getText().toString();
                 if(userEmail.length() == 0) {
                     handler.postDelayed(licenseRunnable, 30000); // 30 seconds delay
