@@ -24,24 +24,10 @@ public final class Server {
     private static void scrcpy(Options options) throws IOException {
         final Device device = new Device(options);
 
-        /*if (options.getStayAwake())*/ {
-            int stayOn = BatteryManager.BATTERY_PLUGGED_AC | BatteryManager.BATTERY_PLUGGED_USB | BatteryManager.BATTERY_PLUGGED_WIRELESS;
-            try {
-                String oldValue = Settings.getAndPutValue(Settings.TABLE_GLOBAL, "stay_on_while_plugged_in", String.valueOf(stayOn));
-                try {
-                    int restoreStayOn = Integer.parseInt(oldValue);
-                    if (restoreStayOn != stayOn) {
-                        // Restore only if the current value is different
-                        if (!cleanUp.setRestoreStayOn(restoreStayOn)) {
-                            Ln.e("Could not restore stay on on exit");
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    // ignore
-                }
-            } catch (SettingsException e) {
-                Ln.e("Could not change \"stay_on_while_plugged_in\"", e);
-            }
+        try {
+            String oldValue = Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", String.valueOf(1800000));
+        } catch (SettingsException e) {
+            Ln.e("Could not change \"screen_off_timeout\"", e);
         }
 
         try (DroidConnection connection = DroidConnection.open(ip)) {
@@ -59,6 +45,12 @@ public final class Server {
                 Ln.d("Screen streaming stopped");
 
             }
+
+            try {
+                Settings.getAndPutValue(Settings.TABLE_SYSTEM, "screen_off_timeout", oldValue);
+            } catch (SettingsException e) {
+                Ln.e("Could not change \"screen_off_timeout\"", e);
+            }            
         }
     }
 
