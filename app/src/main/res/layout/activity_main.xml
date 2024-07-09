@@ -185,8 +185,24 @@
             android:layout_height="wrap_content"
             android:entries="@array/options_bitrate_keys"
             android:minHeight="48dp" />
+
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <Switch
+            android:id="@+id/keep_aspect_ratio"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Keep Aspect Ratio"
+            android:textSize="15sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -53,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import io.github.muntashirakon.adb.AbsAdbConnectionManager;
 import io.github.muntashirakon.adb.AdbPairingRequiredException;
@@ -101,8 +102,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             scrcpy = ((Scrcpy.MyServiceBinder) iBinder).getService();
             scrcpy.setServiceCallbacks(MainActivity.this);
             serviceBound = true;
+            Log.d("screen", screenHeight + " " + screenWidth);
            if (first_time) {
-                scrcpy.start(surface, serverAdr, screenHeight, screenWidth);
+                scrcpy.start(surface, serverAdr, screenWidth, screenHeight);
                int count = 100;
                while (count!=0 && !scrcpy.check_socket_connection()){
                    count --;
@@ -127,7 +129,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
                first_time = false;
                }
             } else {
-                scrcpy.setParms(surface, screenWidth, screenHeight);
+                scrcpy.setParms(surface, screenHeight, screenWidth);
             }
             set_display_nd_touch();
         }
@@ -319,12 +321,14 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Switch aSwitch0 = findViewById(R.id.switch0);
         final Switch aSwitch1 = findViewById(R.id.switch1);
         final Switch adebuglog = findViewById(R.id.debuglog);
+        final Switch keepaspectratio = findViewById(R.id.keep_aspect_ratio);
         editTextServerHost.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Address", ""));
         editTextServerPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Server Port", ""));
         editTextPairPort.setText(context.getSharedPreferences(PREFERENCE_KEY, 0).getString("Pair Port", ""));
         aSwitch0.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("No Control", false));
         aSwitch1.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Nav Switch", false));
         adebuglog.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Debug Log", false));
+        keepaspectratio.setChecked(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Keep Aspect Ratio", false));
         setSpinner(R.array.options_resolution_keys, R.id.spinner_video_resolution, PREFERENCE_SPINNER_RESOLUTION);
         setSpinner(R.array.options_bitrate_keys, R.id.spinner_video_bitrate, PREFERENCE_SPINNER_BITRATE);
         if(aSwitch0.isChecked()){
@@ -345,6 +349,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     @SuppressLint("ClickableViewAccessibility")
     public void set_display_nd_touch() {
+        final View decodeSurface = findViewById(R.id.decoder_surface);
         DisplayMetrics metrics = new DisplayMetrics();
         if (ViewConfiguration.get(context).hasPermanentMenuKey()) {
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -356,30 +361,49 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         float this_dev_width = metrics.widthPixels;
         if (nav && !no_control){
             if (landscape){
-                this_dev_width = this_dev_width - 96;
+                //this_dev_width = this_dev_width - 96;
             }else {                                                 //100 is the height of nav bar but need multiples of 8.
-                this_dev_height = this_dev_height - 96;
+                //this_dev_height = this_dev_height - 96;
             }
         }
-        float remote_device_aspect_ratio = remote_device_height/remote_device_width;
-/*
-        if (!landscape) {                                                            //Portrait
-            float this_device_aspect_ratio = this_dev_height/this_dev_width;
-            if (remote_device_aspect_ratio > this_device_aspect_ratio) {
-                linearLayout.setPadding((int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_width)/2),0,(int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_width)/2),0);
-            } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
-                linearLayout.setPadding(0,(int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_width)),0,0);
-            }
+        float this_device_aspect_ratio;
+        int padding = 0;
+        float remote_device_aspect_ratio = 0;
+        if(context.getSharedPreferences(PREFERENCE_KEY, 0).getBoolean("Keep Aspect Ratio", false)) {
+            if (!landscape) {
+                //Portrait
+                remote_device_aspect_ratio = remote_device_height/remote_device_width;
+                this_device_aspect_ratio = this_dev_height/this_dev_width;
+                if (remote_device_aspect_ratio > this_device_aspect_ratio) {
+                    padding = (int)((this_dev_width - (this_dev_height / remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(padding, 0, padding, 0);
+                } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
+                    padding = (int)((this_dev_height - (this_dev_width * remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(0, padding, 0, padding);
+                }
 
-        }else{                                                                        //Landscape
-            float this_device_aspect_ratio = this_dev_width/this_dev_height;
-            if (remote_device_aspect_ratio > this_device_aspect_ratio) {
-                linearLayout.setPadding(0,(int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_height)/2),0,(int) (((remote_device_aspect_ratio - this_device_aspect_ratio)*this_dev_height)/2));
-            } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
-                linearLayout.setPadding(((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0,((int) (((this_device_aspect_ratio - remote_device_aspect_ratio)*this_dev_height))/2),0);
+            }else{
+                //Landscape
+                remote_device_aspect_ratio = remote_device_width/remote_device_height;
+                this_device_aspect_ratio = this_dev_height/this_dev_width;
+                if (remote_device_aspect_ratio > this_device_aspect_ratio) {
+                    padding = (int)((this_dev_width - (this_dev_height / remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(padding, 0, padding, 0);
+                } else if (remote_device_aspect_ratio < this_device_aspect_ratio) {
+                    padding = (int)((this_dev_height - (this_dev_width * remote_device_aspect_ratio)) / 2);
+                    if(padding >= 0)
+                        linearLayout.setPadding(0, padding, 0, padding);
+                }
             }
+            if(padding < 0)
+                linearLayout.setPadding(0, 0, 0, 0);
 
-        }*/
+            Log.d("aspect_ratio ",  landscape + " " + remote_device_aspect_ratio + " " + this_device_aspect_ratio + " " + this_dev_width + " " + this_dev_height + " " + padding + " " + remote_device_width + " " + remote_device_height  + " " + screenWidth + " " + screenHeight);
+        }
+
         if (!no_control) {
             surfaceView.setOnTouchListener((v, event) -> scrcpy.touchevent(event, surfaceView.getWidth(), surfaceView.getHeight(), landscape));
         }
@@ -438,9 +462,11 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         final Switch a_Switch1 = findViewById(R.id.switch1);
         nav = a_Switch1.isChecked();
         final Switch a_debuglog = findViewById(R.id.debuglog);
+        final Switch keepaspectratio = findViewById(R.id.keep_aspect_ratio);
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("No Control", no_control).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Nav Switch", nav).apply();
         context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Debug Log", a_debuglog.isChecked()).apply();
+        context.getSharedPreferences(PREFERENCE_KEY, 0).edit().putBoolean("Keep Aspect Ratio", keepaspectratio.isChecked()).apply();
 
         final String[] videoResolutions = getResources().getStringArray(R.array.options_resolution_values)[videoResolutionSpinner.getSelectedItemPosition()].split(",");
             screenHeight = Integer.parseInt(videoResolutions[0]);
@@ -517,6 +543,7 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     public void loadNewRotation() {
+        Log.d("aspect_ratio", "loadNewRotation");
         if (first_time){
             int[] rem_res = scrcpy.get_remote_device_resolution();
             remote_device_height = rem_res[1];
@@ -528,6 +555,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         result_of_Rotation = true;
         landscape = !landscape;
         swapDimensions();
+        runOnUiThread(() -> {
+            set_display_nd_touch();
+        });
+
         /*if (landscape) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         } else {
