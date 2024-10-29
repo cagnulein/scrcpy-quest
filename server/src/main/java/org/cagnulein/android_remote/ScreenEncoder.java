@@ -1,5 +1,7 @@
 package org.cagnulein.android_remote;
 
+import static org.cagnulein.android_remote.wrappers.SurfaceControl.createDisplay;
+
 import android.graphics.Rect;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
@@ -124,18 +126,22 @@ public class ScreenEncoder implements Device.RotationListener {
                     virtualDisplay = null;
                 }
 
-                /*try {
-                    display = createDisplay();
-                    setDisplaySurface(display, surface, deviceRect, videoRect);
-                    Ln.d("Display: using SurfaceControl API");
-                } catch (Exception surfaceControlException )*/ {
+                {
                     try {
                         virtualDisplay = DisplayManager.createVirtualDisplay("scrcpy", videoRect.width(), videoRect.height(), 0, surface);
                         Ln.d("Display: using DisplayManager API");
                     } catch (Exception displayManagerException) {
-                        //Ln.e("Could not create display using SurfaceControl", surfaceControlException);
-                        Ln.e("Could not create display using DisplayManager", displayManagerException);
-                        throw new AssertionError("Could not create display");
+                        try {
+                            boolean secure = Build.VERSION.SDK_INT < Build.VERSION_CODES.R || (Build.VERSION.SDK_INT == Build.VERSION_CODES.R && !"S".equals(
+                                    Build.VERSION.CODENAME));
+                            display = createDisplay("scrcpy", secure);
+                            setDisplaySurface(display, surface, deviceRect, videoRect);
+                            Ln.d("Display: using SurfaceControl API");
+                        } catch (Exception surfaceControlException) {
+                            Ln.e("Could not create display using SurfaceControl", surfaceControlException);
+                            Ln.e("Could not create display using DisplayManager", displayManagerException);
+                            throw new AssertionError("Could not create display");
+                        }
                     }
                 }
                 codec.start();
