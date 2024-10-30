@@ -222,7 +222,11 @@ public class Scrcpy extends Service {
                             }
 
                         } else {
-                            Thread.sleep(5);
+                            try {
+                                Thread.sleep(5); 
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
 
 
