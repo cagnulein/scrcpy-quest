@@ -222,7 +222,7 @@ public class Scrcpy extends Service {
                             }
 
                         } else {
-                            Threas.sleep(5);
+                            Thread.sleep(5);
                         }
 
 
