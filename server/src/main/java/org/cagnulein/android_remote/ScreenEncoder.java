@@ -75,12 +75,18 @@ public class ScreenEncoder implements Device.RotationListener {
     }
 
     private static void setDisplaySurface(IBinder display, Surface surface, Rect deviceRect, Rect displayRect) {
+        Ln.d("setDisplaySurface 1");
         SurfaceControl.openTransaction();
         try {
+            Ln.d("setDisplaySurface 2");
             SurfaceControl.setDisplaySurface(display, surface);
+            Ln.d("setDisplaySurface 3");
             SurfaceControl.setDisplayProjection(display, 0, deviceRect, displayRect);
+            Ln.d("setDisplaySurface 4");
             SurfaceControl.setDisplayLayerStack(display, 0);
+            Ln.d("setDisplaySurface 5");
         } finally {
+            Ln.d("setDisplaySurface 6");
             SurfaceControl.closeTransaction();
         }
     }
@@ -134,7 +140,9 @@ public class ScreenEncoder implements Device.RotationListener {
                         try {
                             boolean secure = Build.VERSION.SDK_INT < Build.VERSION_CODES.R || (Build.VERSION.SDK_INT == Build.VERSION_CODES.R && !"S".equals(
                                     Build.VERSION.CODENAME));
+                            Ln.d("Creating display...");
                             display = createDisplay("scrcpy", secure);
+                            Ln.d("Display created " + display.toString());
                             setDisplaySurface(display, surface, deviceRect, videoRect);
                             Ln.d("Display: using SurfaceControl API");
                         } catch (Exception surfaceControlException) {
