@@ -221,6 +221,8 @@ public class Scrcpy extends Service {
                                 first_time = false;
                             }
 
+                        } else {
+                            Threas.sleep(5);
                         }
 
 
