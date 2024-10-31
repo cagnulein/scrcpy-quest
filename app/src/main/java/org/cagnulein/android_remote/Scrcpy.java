@@ -221,6 +221,12 @@ public class Scrcpy extends Service {
                                 first_time = false;
                             }
 
+                        } else {
+                            try {
+                                Thread.sleep(5); 
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
 
 
