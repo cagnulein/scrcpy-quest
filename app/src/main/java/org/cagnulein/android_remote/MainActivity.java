@@ -620,10 +620,9 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
 
     private boolean handleKeyEvent(int keyCode, KeyEvent event) {
         Log.d("keyboard", event.toString());
-        // Se non hai gestito l'evento, passa al gestore predefinito
         if(scrcpy != null)
             scrcpy.sendKeyevent(keyCode);
-        return super.onKeyDown(keyCode, event);
+        return true;
     }
 
     @Override
